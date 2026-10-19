@@ -17,23 +17,30 @@ Team: 4 personen, looptijd: 1 week. Houd het dus simpel: liever iets eenvoudigs 
 
 Dit is een monorepo, opgesplitst per onderdeel:
 
-| Map | Inhoud | Taal |
-| --- | --- | --- |
-| `/pi` | Alles wat op de Raspberry Pi draait: sensoren, backend, OLED, gRPC-server | nog te bepalen (zie hieronder) |
-| `/app` | De Lynx-app | TypeScript |
-| `/proto` | Het gRPC-contract (`.proto`-bestanden) | Protocol Buffers |
+| Map | Rol | Inhoud | Taal |
+| --- | --- | --- | --- |
+| `/pi` | backend | Alles wat op de Raspberry Pi draait: sensoren, backend, OLED, gRPC-server, opslag | TypeScript op Node.js, met SQLite als database |
+| `/app` | frontend | De Lynx-app | TypeScript |
+| `/proto` | contract | Het gRPC-contract (`.proto`-bestanden) | Protocol Buffers |
 
 Regels voor de structuur:
 
 - Elk onderdeel heeft zijn eigen dependencies, build en tooling **in zijn eigen map**. Zet geen `package.json`, `requirements.txt` of iets gelijkaardigs in de root.
+- `/pi` is de backend en `/app` is de frontend. Maak geen `backend`- of `frontend`-mappen in een onderdeel: de backend draait op de Pi, de app op de telefoon.
 - `/proto` is de enige bron van waarheid voor de communicatie tussen Pi en app. Kopieer `.proto`-bestanden nooit naar `/pi` of `/app`: genereer code vanuit `/proto`.
 - Gegenereerde code staat in een duidelijk benoemde map (bv. `generated/`) en wordt nooit met de hand aangepast.
+
+## Genomen beslissingen
+
+- **Backend op de Pi:** TypeScript op Node.js, met SQLite als database. Pi en app gebruiken dus allebei TypeScript.
 
 ## Open beslissingen
 
 Deze keuzes zijn **nog niet gemaakt**. Ga er niet van uit en kies ze niet op eigen houtje; vraag het eerst aan het team.
 
-- **Taal en framework van de backend op de Pi** (Python, Node/TypeScript, Go, ...). Zodra dit vastligt, vul je de sectie "Codekwaliteit per onderdeel" hieronder aan.
+- Welke Node.js-versie (LTS) en welke SQLite-library (bv. `better-sqlite3` of de ingebouwde `node:sqlite`).
+- Welke libraries voor gRPC, de sensoren en het OLED-scherm.
+- Welk testframework (bv. de ingebouwde `node:test` of Vitest), liefst hetzelfde voor `/pi` en `/app`.
 - Hoe de Pi-code opgedeeld wordt (één proces of meerdere services).
 - Hoe de code uit `/proto` gegenereerd wordt (tool, script, waar de output komt).
 
@@ -77,6 +84,7 @@ Een wijziging in `/proto` raakt zowel de Pi als de app. Daarom:
 Dit is een healthcare-project. Behandel meetwaarden als gevoelige gegevens:
 
 - Gebruik nooit echte persoonsgegevens of medische gegevens in de code, tests, voorbeelden of commits. Gebruik verzonnen testdata.
+- Commit nooit een SQLite-databasebestand, ook niet als voorbeeld. Testdata komt uit een seed-script.
 - Log geen meetwaarden die aan een persoon te koppelen zijn, behalve tijdens lokaal debuggen, en haal dat weg voor je commit.
 - Toon in de app duidelijk dat het om een prototype gaat en niet om een medisch hulpmiddel.
 
@@ -89,10 +97,22 @@ Dit is een healthcare-project. Behandel meetwaarden als gevoelige gegevens:
 - Gebruik de types die uit `/proto` gegenereerd worden, definieer ze niet opnieuw met de hand.
 - Componenten klein houden; logica (data ophalen, omzetten) apart van de weergave.
 
-**`/pi`**
+**`/pi` (TypeScript, Node.js, SQLite)**
 
-- Nog in te vullen zodra de taal gekozen is: linter, formatter, testframework, manier om de code te starten.
-- Houd sensoren, OLED en gRPC-server gescheiden in eigen modules, zodat ze apart te testen en te vervangen zijn.
+- Dezelfde TypeScript-regels als de app: `strict` aan, geen `any`, ESLint en Prettier met dezelfde instellingen.
+- Leg de Node.js-versie vast (bv. in `.nvmrc` en `engines` in `package.json`), zodat iedereen en de Pi dezelfde versie draaien.
+- Houd sensoren, OLED, opslag en gRPC-server gescheiden in eigen modules, zodat ze apart te testen en te vervangen zijn.
+- Gebruik de types die uit `/proto` gegenereerd worden, definieer ze niet opnieuw met de hand.
+- Gebruik `async`/`await` en vang fouten op in elke lus die sensoren uitleest. Een onverwerkte promise-fout mag het proces niet laten crashen.
+
+**SQLite**
+
+- Alle database-toegang zit in één module (bv. `src/db/`). De rest van de code roept functies aan en schrijft geen SQL.
+- Gebruik altijd geparametriseerde queries (`?` of `:naam`). Bouw nooit SQL door strings aan elkaar te plakken.
+- Schemawijzigingen gaan via genummerde migratiebestanden (`001_init.sql`, `002_...`) die bij het opstarten uitgevoerd worden. Pas een migratie die al gemerged is nooit meer aan; voeg een nieuwe toe.
+- Tijdstippen worden in UTC opgeslagen (ISO 8601 of Unix-tijd in milliseconden, overal hetzelfde). Zet de eenheid van een meetwaarde in de kolomnaam als die niet evident is (`temperature_c`, `noise_db`).
+- Zet WAL-modus aan (`PRAGMA journal_mode = WAL`) zodat lezen en schrijven elkaar niet blokkeren.
+- Het databasebestand staat in `.gitignore` en wordt nooit gecommit. Tests gebruiken een database in het geheugen (`:memory:`) of een tijdelijk bestand.
 
 **`/proto`**
 

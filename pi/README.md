@@ -1,9 +1,10 @@
 # pi
 
-Code die op de Raspberry Pi draait (taal nog te bepalen, zie [AGENTS.md](../AGENTS.md)):
+Code die op de Raspberry Pi draait, in TypeScript op Node.js, met SQLite als database (zie [AGENTS.md](../AGENTS.md)):
 
 - uitlezen van de sensoren
 - backend-logica
+- opslag van metingen in SQLite
 - aansturen van het OLED-scherm
 - gRPC-server (implementeert het contract uit [`/proto`](../proto))
 
