@@ -4,19 +4,20 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Python (pi)
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-*.egg-info/
-.pytest_cache/
-
-# Node / TypeScript (app)
+# Node / TypeScript (pi en app)
 node_modules/
 dist/
 build/
 *.log
+
+# SQLite-databases (pi)
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3
 
 # Omgevingsvariabelen
 .env
