@@ -1,6 +1,6 @@
 # Future Technologies – Labo 01 Healthcare
 
-Dit project is een **monorepo**: het hele project zit in één repository, opgesplitst per onderdeel. Een verpleegkundige kan niet elke kamer permanent controleren. Toch beïnvloeden warmte, droge lucht, licht en lawaai het comfort, de slaap en het herstel van een patiënt. KamerWacht bewaakt dat automatisch en alarmeert alleen als er iets afwijkt.
+Dit project is een **monorepo**: het hele project zit in één repository, opgesplitst per onderdeel. Een verpleegkundige kan niet elke kamer permanent controleren. Toch beïnvloeden warmte, droge lucht, licht en lawaai het comfort, de slaap en het herstel van een patiënt. RestWell bewaakt dat automatisch en alarmeert alleen als er iets afwijkt.
 
 ## Stack
 
