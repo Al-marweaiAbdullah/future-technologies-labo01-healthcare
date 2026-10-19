@@ -1,6 +1,6 @@
 # pi
 
-Python-code die op de Raspberry Pi draait:
+Code die op de Raspberry Pi draait (taal nog te bepalen, zie [AGENTS.md](../AGENTS.md)):
 
 - uitlezen van de sensoren
 - backend-logica
