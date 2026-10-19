@@ -27,8 +27,10 @@ npm test            # tests (node:test, bestanden *.test.ts)
 npm run lint        # ESLint
 npm run format      # Prettier: code formatteren
 npm run typecheck   # tsc: types controleren
-npm run generate    # Buf: TypeScript genereren uit /proto naar src/grpc/generated/
+npm run generate    # Buf: code (.js + .d.ts) genereren uit /proto naar src/grpc/generated/
 ```
+
+De gegenereerde code staat niet in git. Draai `npm run generate` na een clone en na elke wijziging in `/proto`.
 
 Node voert de `.ts`-bestanden rechtstreeks uit, er is geen build-stap. Gebruik daarom alleen TypeScript-syntax die Node kan weglaten (geen `enum` of `namespace`), en importeer met de extensie: `import { x } from "./x.ts"`.
 
