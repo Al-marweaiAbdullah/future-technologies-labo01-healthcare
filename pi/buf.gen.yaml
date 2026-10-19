@@ -1,0 +1,11 @@
+# Genereert TypeScript uit /proto. Uitvoeren met: npm run generate
+version: v2
+inputs:
+  - directory: ../proto
+plugins:
+  - local: protoc-gen-es
+    out: src/grpc/generated
+    opt:
+      - target=ts
+      - import_extension=ts
+clean: true

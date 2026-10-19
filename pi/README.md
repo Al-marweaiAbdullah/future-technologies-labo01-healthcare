@@ -14,7 +14,25 @@ pi/
     main.ts      ← start alles en koppelt de onderdelen aan elkaar
 ```
 
-Elke map heeft een eigen README met wat ze doet en wat ze aanbiedt. `main.ts` en de `package.json` komen er zodra de tooling gekozen is.
+Elke map heeft een eigen README met wat ze doet en wat ze aanbiedt.
+
+## Opstarten
+
+Vereist Node.js 24 (`nvm use` leest `.nvmrc`). Alle commando's voer je uit in `pi/`.
+
+```bash
+npm install         # dependencies installeren
+npm run dev         # KamerWacht starten (node src/main.ts)
+npm test            # tests (node:test, bestanden *.test.ts)
+npm run lint        # ESLint
+npm run format      # Prettier: code formatteren
+npm run typecheck   # tsc: types controleren
+npm run generate    # Buf: TypeScript genereren uit /proto naar src/grpc/generated/
+```
+
+Node voert de `.ts`-bestanden rechtstreeks uit, er is geen build-stap. Gebruik daarom alleen TypeScript-syntax die Node kan weglaten (geen `enum` of `namespace`), en importeer met de extensie: `import { x } from "./x.ts"`.
+
+Een library toevoegen doe je met `npm install <naam>`: de versie wordt automatisch exact gepind.
 
 ## Hoe de onderdelen samenwerken
 

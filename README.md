@@ -12,7 +12,7 @@ Dit project is een **monorepo**: het hele project zit in één repository, opges
 | Frontend     | Lynx-app in TypeScript                                |
 | Communicatie | gRPC, met het contract in Protocol Buffers (`.proto`) |
 
-Nog niet gekozen: de Node.js-versie, de libraries voor SQLite, gRPC, de sensoren en het OLED-scherm, en het testframework. Zie [AGENTS.md](AGENTS.md#open-beslissingen).
+Gekozen voor `/pi`: Node.js 24, npm, `better-sqlite3`, `node:test`, ConnectRPC en Buf. Nog niet gekozen: de libraries voor de sensoren en het OLED-scherm. Zie [AGENTS.md](AGENTS.md#genomen-beslissingen).
 
 ## Structuur
 

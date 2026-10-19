@@ -1,0 +1,34 @@
+{
+  "name": "kamerwacht-pi",
+  "version": "0.0.0",
+  "private": true,
+  "description": "KamerWacht: alles wat op de Raspberry Pi draait (hardware, backend en gRPC-server)",
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "dev": "node src/main.ts",
+    "test": "node --test \"src/**/*.test.ts\"",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc",
+    "generate": "buf generate"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "2.16.0",
+    "better-sqlite3": "13.0.3"
+  },
+  "devDependencies": {
+    "@bufbuild/buf": "1.74.0",
+    "@bufbuild/protoc-gen-es": "2.16.0",
+    "@eslint/js": "10.0.1",
+    "@types/better-sqlite3": "9.6.0",
+    "@types/node": "24.19.2",
+    "eslint": "10.13.0",
+    "prettier": "3.9.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.2"
+  }
+}
