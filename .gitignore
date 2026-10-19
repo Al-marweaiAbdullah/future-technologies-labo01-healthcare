@@ -1,0 +1,24 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python (pi)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Node / TypeScript (app)
+node_modules/
+dist/
+build/
+*.log
+
+# Omgevingsvariabelen
+.env
+.env.*
+!.env.example
