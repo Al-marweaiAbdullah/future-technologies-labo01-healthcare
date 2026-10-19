@@ -8,12 +8,12 @@ Dit is de enige bron van waarheid: zowel [`/pi`](../pi) als [`/app`](../app) gen
 
 ```
 proto/
-  kamerwacht/v1/kamerwacht.proto   ← de service KamerWachtService en alle messages
+  restwell/v1/restwell.proto   ← de service RestWellService en alle messages
 ```
 
-De map volgt de package-naam (`kamerwacht.v1`). Een brekende wijziging komt later in een nieuwe versie (`v2`), zodat oude code blijft werken.
+De map volgt de package-naam (`restwell.v1`). Een brekende wijziging komt later in een nieuwe versie (`v2`), zodat oude code blijft werken.
 
-## Overzicht van KamerWachtService
+## Overzicht van RestWellService
 
 | RPC | Soort | Wat |
 | --- | --- | --- |
