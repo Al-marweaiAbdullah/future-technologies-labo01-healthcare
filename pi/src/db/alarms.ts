@@ -37,21 +37,22 @@ export function getOpenAlarmForSensor(
     .get(roomId, sensor) as AlarmRow | undefined;
 }
 
-// Alleen een actief alarm kan bevestigd worden. Geeft false terug als er niets veranderde.
+// Alleen een actief alarm kan bevestigd worden.
+// Geeft het bijgewerkte alarm terug, of undefined als het onbekend of niet actief was.
 export function acknowledgeAlarm(
   db: Db,
   alarmId: number,
   acknowledgedBy: string,
   nowMs: number,
-): boolean {
-  const result = db
+): AlarmRow | undefined {
+  return db
     .prepare(
       `UPDATE alarms
        SET status = 'acknowledged', acknowledged_at_ms = ?, acknowledged_by = ?
-       WHERE id = ? AND status = 'active'`,
+       WHERE id = ? AND status = 'active'
+       RETURNING *`,
     )
-    .run(nowMs, acknowledgedBy, alarmId);
-  return result.changes === 1;
+    .get(nowMs, acknowledgedBy, alarmId) as AlarmRow | undefined;
 }
 
 // Sluit een open alarm af omdat de waarde weer normaal is. Geeft false terug als er niets veranderde.

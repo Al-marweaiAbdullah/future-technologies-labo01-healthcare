@@ -24,7 +24,7 @@ import { openDatabase, seedDefaults, saveMeasurement } from "./db/index.ts";
 | `createAlarm(db, alarm)`                     | Nieuw alarm met status `active`                                                           |
 | `listOpenAlarms(db, roomId)`                 | Alarmen die nog niet opgelost zijn (`active` of `acknowledged`)                           |
 | `getOpenAlarmForSensor(db, roomId, sensor)`  | Het open alarm van één sensor, of `undefined`                                             |
-| `acknowledgeAlarm(db, alarmId, by, nowMs)`   | `active` → `acknowledged`. Geeft `false` als dat niet kon                                 |
+| `acknowledgeAlarm(db, alarmId, by, nowMs)`   | `active` → `acknowledged`. Geeft het alarm terug, of `undefined`                          |
 | `resolveAlarm(db, alarmId, nowMs)`           | Open alarm → `resolved`. Geeft `false` als dat niet kon                                   |
 
 De types (`RoomRow`, `MeasurementRow`, `AlarmRow`, ...) staan in `types.ts` en worden ook via `index.ts` geëxporteerd. Ze beschrijven de rijen in de database. Naar de app gaan de types uit `/proto`.
