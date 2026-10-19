@@ -2,7 +2,7 @@
 
 **Verantwoordelijke:** backend
 
-Beslist wanneer een meting afwijkt en er een alarm moet komen. Dit is de kern van KamerWacht: alarmeer **alleen** als er echt iets mis is.
+Beslist wanneer een meting afwijkt en er een alarm moet komen. Dit is de kern van RestWell: alarmeer **alleen** als er echt iets mis is.
 
 ## Wat deze map aanbiedt
 

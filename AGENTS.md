@@ -5,7 +5,7 @@ Lees dit voor je code schrijft.
 
 ## Project
 
-**KamerWacht** (Future Technologies – Labo 01 Healthcare). Een verpleegkundige kan niet elke kamer permanent controleren, terwijl warmte, droge lucht, licht en lawaai het comfort, de slaap en het herstel van een patiënt beïnvloeden. KamerWacht bewaakt dat automatisch en alarmeert alleen als er iets afwijkt.
+**RestWell** (Future Technologies – Labo 01 Healthcare). Een verpleegkundige kan niet elke kamer permanent controleren, terwijl warmte, droge lucht, licht en lawaai het comfort, de slaap en het herstel van een patiënt beïnvloeden. RestWell bewaakt dat automatisch en alarmeert alleen als er iets afwijkt.
 
 Technisch: een Raspberry Pi leest sensoren uit, toont gegevens op een OLED-scherm en stelt ze via gRPC beschikbaar aan een mobiele app (Lynx, TypeScript).
 
@@ -103,8 +103,10 @@ Dit is een healthcare-project. Behandel meetwaarden als gevoelige gegevens:
 
 **`/app` (TypeScript, Lynx)**
 
+- Opgezet met Rspeedy (`npm create rspeedy`), ReactLynx als framework. Starten: `npm install` en `npm run dev` in `/app`, bekijken in Lynx Explorer (zie [`app/README.md`](app/README.md)).
 - `strict` aan in `tsconfig.json`. Geen `any`; gebruik `unknown` en vernauw het type.
-- ESLint en Prettier voor linten en formatteren.
+- ESLint (`npm run lint`) en Prettier (`npm run format`) voor linten en formatteren.
+- Tests met Rstest (`npm run test`).
 - Gebruik de types die uit `/proto` gegenereerd worden, definieer ze niet opnieuw met de hand.
 - Componenten klein houden; logica (data ophalen, omzetten) apart van de weergave.
 
