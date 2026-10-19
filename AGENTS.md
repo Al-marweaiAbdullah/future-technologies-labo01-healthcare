@@ -80,6 +80,22 @@ Een wijziging in `/proto` raakt zowel de Pi als de app. Daarom:
 - Naamgeving volgens de [Protobuf-stijlgids](https://protobuf.dev/programming-guides/style/): `PascalCase` voor messages, services en RPC's, `snake_case` voor velden, `UPPER_SNAKE_CASE` voor enum-waarden (met prefix, en `..._UNSPECIFIED = 0` als eerste waarde).
 - Zet een korte comment bij elke service, RPC en elk veld waarvan de betekenis of eenheid niet evident is (bv. `// hartslag in slagen per minuut`).
 
+### Afwijkingen van het contract melden
+
+Het contract in `/proto` moet overeenkomen met de database, de backend en de app. Merk je dat iets niet meer klopt, **meld het dan en stel een aanpassing voor, maar voer ze niet zelf uit.** Dat geldt bijvoorbeeld voor:
+
+- een kolom in de database die erbij komt, verdwijnt of een andere naam, eenheid of betekenis krijgt
+- een type in `/pi` of `/app` dat anders is dan het overeenkomstige message in `/proto`
+- een toegelaten waarde (bv. een alarmstatus of sensornaam) die niet in een enum van het contract staat
+- een functie in de backend of app die gegevens nodig heeft die het contract nog niet aanbiedt
+
+Een melding bevat:
+
+1. **Wat** niet overeenkomt: bestand, veld of kolom, en de waarde aan beide kanten.
+2. **Voorstel:** de concrete aanpassing, aan het contract of aan de andere kant, met de gevolgen (bv. "nieuw veld, niet brekend" of "veld hernoemen, breekt de app").
+
+Wie aan proto/gRPC werkt, beslist en voert de aanpassing uit.
+
 ## Codekwaliteit
 
 ### Algemeen
@@ -143,3 +159,4 @@ Dit is een healthcare-project. Behandel meetwaarden als gevoelige gegevens:
 - Commit, push en merge nooit zonder uitdrukkelijk akkoord van de gebruiker.
 - Pas documentatie (README, dit bestand) aan als je iets verandert aan de structuur, de tooling of een afspraak.
 - Weet je iets niet zeker (hardware, pinout, contract)? Vraag het in plaats van te gokken.
+- Komt iets niet overeen met het contract in `/proto`, of verandert er iets dat het contract raakt? Meld het en stel een aanpassing voor zoals beschreven in "Afwijkingen van het contract melden". **Voer de aanpassing niet uit**, ook niet als ze klein lijkt, tot de gebruiker uitdrukkelijk akkoord geeft.

@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package restwell.v1;
+
+// Tijdstippen (`_ms`): Unix-tijd in milliseconden, UTC.
+service RestWellService {
+  // Alle kamers.
+  rpc ListRooms(ListRoomsRequest) returns (ListRoomsResponse);
+
+  // Live: laatste meting, daarna elke nieuwe meting en alarmwijziging.
+  rpc WatchRoom(WatchRoomRequest) returns (stream WatchRoomResponse);
+
+  // Metingen vanaf een tijdstip, oudste eerst.
+  rpc ListReadings(ListReadingsRequest) returns (ListReadingsResponse);
+
+  // Alarmen die nog niet opgelost zijn.
+  rpc ListOpenAlarms(ListOpenAlarmsRequest) returns (ListOpenAlarmsResponse);
+
+  // "Ik heb het gezien": status wordt ACKNOWLEDGED, buzzer stopt.
+  rpc AcknowledgeAlarm(AcknowledgeAlarmRequest) returns (AcknowledgeAlarmResponse);
+}
+
+// ---------- Gegevens ----------
+
+message Room {
+  string id = 1;
+  string name = 2;
+}
+
+// Leeg veld = sensor gaf geen waarde.
+message Reading {
+  string room_id = 1;
+  int64 timestamp_ms = 2;
+  optional double temperature_c = 3;
+  optional double humidity_percent = 4;
+  optional int32 light_lux = 5;
+  optional int32 sound_db = 6;
+  optional bool motion_detected = 7;
+}
+
+// Kolom `sensor` in de database.
+enum Metric {
+  METRIC_UNSPECIFIED = 0;
+  METRIC_TEMPERATURE = 1;  // 'temperature'
+  METRIC_HUMIDITY = 2;     // 'humidity'
+  METRIC_LIGHT = 3;        // 'light'
+  METRIC_SOUND = 4;        // 'sound'
+  METRIC_MOTION = 5;       // 'motion'
+}
+
+// Kolom `status` in de database.
+enum AlarmStatus {
+  ALARM_STATUS_UNSPECIFIED = 0;
+  ALARM_STATUS_ACTIVE = 1;        // 'active'
+  ALARM_STATUS_ACKNOWLEDGED = 2;  // 'acknowledged': gezien
+  ALARM_STATUS_RESOLVED = 3;      // 'resolved': waarde weer normaal
+}
+
+message Alarm {
+  int64 id = 1;
+  string room_id = 2;
+  Metric metric = 3;
+  optional double value = 4;
+  string reason = 5;
+  AlarmStatus status = 6;
+  int64 started_at_ms = 7;
+  int32 buzzer_after_sec = 8;  // buzzer als niemand het zo lang gezien heeft
+  optional int64 acknowledged_at_ms = 9;
+  optional string acknowledged_by = 10;
+  optional int64 resolved_at_ms = 11;
+}
+
+// ---------- Requests en responses ----------
+
+message ListRoomsRequest {}
+
+message ListRoomsResponse {
+  repeated Room rooms = 1;
+}
+
+message WatchRoomRequest {
+  string room_id = 1;
+}
+
+message WatchRoomResponse {
+  oneof event {
+    Reading reading = 1;
+    Alarm alarm = 2;
+  }
+}
+
+message ListReadingsRequest {
+  string room_id = 1;
+  int64 since_ms = 2;
+}
+
+message ListReadingsResponse {
+  repeated Reading readings = 1;
+}
+
+message ListOpenAlarmsRequest {
+  string room_id = 1;
+}
+
+message ListOpenAlarmsResponse {
+  repeated Alarm alarms = 1;
+}
+
+message AcknowledgeAlarmRequest {
+  int64 alarm_id = 1;
+  string acknowledged_by = 2;
+}
+
+message AcknowledgeAlarmResponse {
+  Alarm alarm = 1;
+}
