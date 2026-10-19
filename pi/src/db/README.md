@@ -31,7 +31,7 @@ De types (`RoomRow`, `MeasurementRow`, `AlarmRow`, ...) staan in `types.ts` en w
 
 ## Database en configuratie
 
-- Het bestand staat standaard in `pi/data/kamerwacht.db`. Een ander pad kies je met de omgevingsvariabele `KAMERWACHT_DB_PATH` (zie `src/config.ts`).
+- Het bestand staat standaard in `pi/data/restwell.db`. Een ander pad kies je met de omgevingsvariabele `RESTWELL_DB_PATH` (zie `src/config.ts`).
 - Tijdstippen zijn Unix-tijd in milliseconden (UTC).
 - `light_raw` en `sound_raw` zijn ruwe sensorwaarden. De drempels in `seed.ts` (700 en 600) zijn voorlopig, tot de eenheid met hardware afgesproken is.
 

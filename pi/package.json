@@ -1,14 +1,15 @@
 {
-  "name": "kamerwacht-pi",
+  "name": "restwell-pi",
   "version": "0.0.0",
   "private": true,
-  "description": "KamerWacht: alles wat op de Raspberry Pi draait (hardware, backend en gRPC-server)",
+  "description": "RestWell: alles wat op de Raspberry Pi draait (hardware, backend en gRPC-server)",
   "type": "module",
   "engines": {
     "node": ">=24 <25"
   },
   "scripts": {
     "dev": "node src/main.ts",
+    "dev:fake": "node src/grpc/dev-fake.ts",
     "test": "node --test \"src/**/*.test.ts\"",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -18,6 +19,8 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "2.16.0",
+    "@connectrpc/connect": "2.2.0",
+    "@connectrpc/connect-node": "2.2.0",
     "better-sqlite3": "13.0.3"
   },
   "devDependencies": {

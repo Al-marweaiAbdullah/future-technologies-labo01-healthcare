@@ -22,7 +22,8 @@ Vereist Node.js 24 (`nvm use` leest `.nvmrc`). Alle commando's voer je uit in `p
 
 ```bash
 npm install         # dependencies installeren
-npm run dev         # KamerWacht starten (node src/main.ts)
+npm run dev         # RestWell starten (node src/main.ts)
+npm run dev:fake    # alleen de gRPC-server, met nepdata (zie src/grpc/README.md)
 npm test            # tests (node:test, bestanden *.test.ts)
 npm run lint        # ESLint
 npm run format      # Prettier: code formatteren

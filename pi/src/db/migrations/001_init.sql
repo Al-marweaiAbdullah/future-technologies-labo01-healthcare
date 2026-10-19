@@ -1,4 +1,4 @@
--- Eerste schema van KamerWacht.
+-- Eerste schema van RestWell.
 -- Tijdstippen zijn Unix-tijd in milliseconden (UTC).
 -- Pas dit bestand na de merge nooit meer aan: voeg een 002_...sql toe.
 
