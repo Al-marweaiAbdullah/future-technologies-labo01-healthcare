@@ -1,0 +1,13 @@
+# Genereert code uit /proto. Uitvoeren met: npm run generate
+# JavaScript met .d.ts in plaats van .ts: de gegenereerde code bevat enums,
+# en die kan Node niet uitvoeren met type stripping.
+version: v2
+inputs:
+  - directory: ../proto
+plugins:
+  - local: protoc-gen-es
+    out: src/grpc/generated
+    opt:
+      - target=js+dts
+      - import_extension=js
+clean: true

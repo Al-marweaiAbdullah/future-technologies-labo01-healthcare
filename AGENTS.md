@@ -44,16 +44,20 @@ Regels voor de structuur:
 ## Genomen beslissingen
 
 - **Backend op de Pi:** TypeScript op Node.js, met SQLite als database. Pi en app gebruiken dus allebei TypeScript.
+- **Pi-code:** één Node.js-proces in `/pi` (zie "Structuur").
+- **Node.js:** versie 24 LTS, vastgelegd in `pi/.nvmrc` en `engines`. Node voert de `.ts`-bestanden zelf uit (type stripping), zonder build-stap.
+- **Package manager:** npm, met exact gepinde versies (`save-exact` in `.npmrc`).
+- **SQLite-library:** `better-sqlite3`.
+- **Testframework:** de ingebouwde `node:test`.
+- **gRPC:** ConnectRPC.
+- **Codegeneratie uit `/proto`:** Buf met `protoc-gen-es` (`npm run generate` in `/pi`), output in `pi/src/grpc/generated/`.
 
 ## Open beslissingen
 
 Deze keuzes zijn **nog niet gemaakt**. Ga er niet van uit en kies ze niet op eigen houtje; vraag het eerst aan het team.
 
-- Welke Node.js-versie (LTS) en welke SQLite-library (bv. `better-sqlite3` of de ingebouwde `node:sqlite`).
-- Welke libraries voor gRPC, de sensoren en het OLED-scherm.
-- Welk testframework (bv. de ingebouwde `node:test` of Vitest), liefst hetzelfde voor `/pi` en `/app`.
-- Hoe de Pi-code opgedeeld wordt (één proces of meerdere services).
-- Hoe de code uit `/proto` gegenereerd wordt (tool, script, waar de output komt).
+- Welke libraries voor de sensoren en het OLED-scherm.
+- Of `/app` ook `node:test` gebruikt.
 
 Is een beslissing genomen? Pas dit bestand aan en verplaats het punt naar de juiste sectie.
 
