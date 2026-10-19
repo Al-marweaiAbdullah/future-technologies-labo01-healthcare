@@ -2,20 +2,42 @@
 
 **Verantwoordelijke:** backend
 
-De opslag van metingen en alarmen in SQLite.
+De opslag van kamers, metingen, drempels en alarmen in SQLite.
 
 ## Wat deze map aanbiedt
 
-Functies om op te slaan en op te vragen, zonder dat de rest van de code SQL moet schrijven. Bijvoorbeeld:
+Importeer alleen uit `db/index.ts`. Elke functie krijgt de databaseverbinding als eerste parameter, zodat tests een database in het geheugen kunnen gebruiken.
 
 ```ts
-saveMeasurement(measurement): void
-getLatestMeasurements(): Measurement[]
-getMeasurementsSince(timestamp): Measurement[]
+import { openDatabase, seedDefaults, saveMeasurement } from "./db/index.ts";
 ```
+
+| Functie                                      | Wat ze doet                                                                               |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `openDatabase(path)`                         | Opent de database (of `IN_MEMORY`), zet WAL en foreign keys aan en voert de migraties uit |
+| `seedDefaults(db)`                           | Maakt `room1` ("Kamer 1") en de standaarddrempels aan als ze nog niet bestaan             |
+| `listRooms(db)` / `getRoom(db, roomId)`      | Kamers opvragen                                                                           |
+| `saveMeasurement(db, measurement)`           | Meting opslaan, geeft de rij met `id` terug                                               |
+| `getLatestMeasurement(db, roomId)`           | Laatste meting van een kamer, of `undefined`                                              |
+| `listMeasurements(db, roomId, fromMs, toMs)` | Metingen in een periode, oudste eerst (voor grafieken)                                    |
+| `listThresholds(db, roomId)`                 | Drempels van een kamer                                                                    |
+| `createAlarm(db, alarm)`                     | Nieuw alarm met status `active`                                                           |
+| `listOpenAlarms(db, roomId)`                 | Alarmen die nog niet opgelost zijn (`active` of `acknowledged`)                           |
+| `getOpenAlarmForSensor(db, roomId, sensor)`  | Het open alarm van één sensor, of `undefined`                                             |
+| `acknowledgeAlarm(db, alarmId, by, nowMs)`   | `active` → `acknowledged`. Geeft `false` als dat niet kon                                 |
+| `resolveAlarm(db, alarmId, nowMs)`           | Open alarm → `resolved`. Geeft `false` als dat niet kon                                   |
+
+De types (`RoomRow`, `MeasurementRow`, `AlarmRow`, ...) staan in `types.ts` en worden ook via `index.ts` geëxporteerd. Ze beschrijven de rijen in de database. Naar de app gaan de types uit `/proto`.
+
+## Database en configuratie
+
+- Het bestand staat standaard in `pi/data/kamerwacht.db`. Een ander pad kies je met de omgevingsvariabele `KAMERWACHT_DB_PATH` (zie `src/config.ts`).
+- Tijdstippen zijn Unix-tijd in milliseconden (UTC).
+- `light_raw` en `sound_raw` zijn ruwe sensorwaarden. De drempels in `seed.ts` (700 en 600) zijn voorlopig, tot de eenheid met hardware afgesproken is.
 
 ## Afspraken
 
-- Dit is de **enige** plek waar SQL staat.
-- Schemawijzigingen gaan via genummerde migraties in `migrations/` (`001_init.sql`, `002_...`).
+- Dit is de **enige** plek waar SQL staat. Altijd geparametriseerde queries.
+- Schemawijzigingen gaan via genummerde migraties in `migrations/` (`001_init.sql`, `002_...`). Een gemergede migratie pas je nooit meer aan. `PRAGMA user_version` onthoudt welke al uitgevoerd zijn.
+- Tests gebruiken `IN_MEMORY`, nooit een bestand.
 - Zie [AGENTS.md](../../../AGENTS.md#codekwaliteit-per-onderdeel) voor de SQLite-regels.
