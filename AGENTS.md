@@ -17,16 +17,27 @@ Team: 4 personen, looptijd: 1 week. Houd het dus simpel: liever iets eenvoudigs 
 
 Dit is een monorepo, opgesplitst per onderdeel:
 
-| Map | Rol | Inhoud | Taal |
-| --- | --- | --- | --- |
-| `/pi` | backend | Alles wat op de Raspberry Pi draait: sensoren, backend, OLED, gRPC-server, opslag | TypeScript op Node.js, met SQLite als database |
-| `/app` | frontend | De Lynx-app | TypeScript |
-| `/proto` | contract | Het gRPC-contract (`.proto`-bestanden) | Protocol Buffers |
+| Map | Inhoud | Taal |
+| --- | --- | --- |
+| `/pi` | Alles wat op de Raspberry Pi draait, als één Node.js-programma: hardware, backend en gRPC-server | TypeScript op Node.js, met SQLite als database |
+| `/app` | De Lynx-app op de telefoon | TypeScript |
+| `/proto` | Het gRPC-contract (`.proto`-bestanden), gedeeld door Pi en app | Protocol Buffers |
+
+Binnen `/pi` heeft elke taak een eigen map:
+
+| Map | Taak | Inhoud |
+| --- | --- | --- |
+| `pi/src/hardware/` | hardware | Sensoren uitlezen, OLED aansturen. Geen opslag of logica |
+| `pi/src/db/` | backend | Opslag in SQLite. De enige plek met SQL |
+| `pi/src/alarms/` | backend | Beslissen wanneer een meting afwijkt. Pure logica, zonder hardware of database |
+| `pi/src/grpc/` | proto/gRPC | Voert het contract uit `/proto` uit. Vertaalt alleen, geen logica |
+| `pi/src/main.ts` | iedereen | Start alles en koppelt de onderdelen aan elkaar |
 
 Regels voor de structuur:
 
+- De mappen bovenaan zijn ingedeeld volgens **waar de code draait**, niet volgens wie eraan werkt. Maak geen `backend`-, `frontend`- of `hardware`-mappen bovenaan: alles voor de Pi hoort in `/pi`.
+- Binnen `/pi` gebruikt een map de andere **alleen via de functies die ze aanbiedt**, nooit via haar interne bestanden. Elke map beschrijft in haar README wat ze aanbiedt.
 - Elk onderdeel heeft zijn eigen dependencies, build en tooling **in zijn eigen map**. Zet geen `package.json`, `requirements.txt` of iets gelijkaardigs in de root.
-- `/pi` is de backend en `/app` is de frontend. Maak geen `backend`- of `frontend`-mappen in een onderdeel: de backend draait op de Pi, de app op de telefoon.
 - `/proto` is de enige bron van waarheid voor de communicatie tussen Pi en app. Kopieer `.proto`-bestanden nooit naar `/pi` of `/app`: genereer code vanuit `/proto`.
 - Gegenereerde code staat in een duidelijk benoemde map (bv. `generated/`) en wordt nooit met de hand aangepast.
 
@@ -101,13 +112,13 @@ Dit is een healthcare-project. Behandel meetwaarden als gevoelige gegevens:
 
 - Dezelfde TypeScript-regels als de app: `strict` aan, geen `any`, ESLint en Prettier met dezelfde instellingen.
 - Leg de Node.js-versie vast (bv. in `.nvmrc` en `engines` in `package.json`), zodat iedereen en de Pi dezelfde versie draaien.
-- Houd sensoren, OLED, opslag en gRPC-server gescheiden in eigen modules, zodat ze apart te testen en te vervangen zijn.
+- Houd hardware, opslag, alarmen en gRPC gescheiden in hun eigen map (zie "Structuur"), zodat ze apart te testen en te vervangen zijn.
 - Gebruik de types die uit `/proto` gegenereerd worden, definieer ze niet opnieuw met de hand.
 - Gebruik `async`/`await` en vang fouten op in elke lus die sensoren uitleest. Een onverwerkte promise-fout mag het proces niet laten crashen.
 
 **SQLite**
 
-- Alle database-toegang zit in één module (bv. `src/db/`). De rest van de code roept functies aan en schrijft geen SQL.
+- Alle database-toegang zit in `pi/src/db/`. De rest van de code roept functies aan en schrijft geen SQL.
 - Gebruik altijd geparametriseerde queries (`?` of `:naam`). Bouw nooit SQL door strings aan elkaar te plakken.
 - Schemawijzigingen gaan via genummerde migratiebestanden (`001_init.sql`, `002_...`) die bij het opstarten uitgevoerd worden. Pas een migratie die al gemerged is nooit meer aan; voeg een nieuwe toe.
 - Tijdstippen worden in UTC opgeslagen (ISO 8601 of Unix-tijd in milliseconden, overal hetzelfde). Zet de eenheid van een meetwaarde in de kolomnaam als die niet evident is (`temperature_c`, `noise_db`).
