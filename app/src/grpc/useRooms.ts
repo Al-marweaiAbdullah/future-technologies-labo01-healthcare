@@ -1,36 +1,22 @@
-// Alle kamers met hun aantal open alarmen, één keer opgehaald bij het openen van het scherm.
+// Alle kamers, één keer opgehaald bij het openen van het scherm.
+// De live status per kamer komt uit useRoomLive (zie RoomRow).
 import { useCallback, useEffect, useState } from '@lynx-js/react';
 
 import type { Room } from '../generated/restwell/v1/restwell_pb.js';
 import { restWell } from './client.js';
 import { errorMessage } from './errors.js';
 
-export type RoomSummary = {
-  room: Room;
-  openAlarmCount: number;
-};
-
 export type RoomsStatus = 'loading' | 'ready' | 'error';
 
 export type Rooms = {
-  rooms: RoomSummary[];
+  rooms: Room[];
   status: RoomsStatus;
   error?: string;
   reload: () => void;
 };
 
-async function fetchRoomSummaries(): Promise<RoomSummary[]> {
-  const { rooms } = await restWell.listRooms({});
-  return Promise.all(
-    rooms.map(async (room) => {
-      const { alarms } = await restWell.listOpenAlarms({ roomId: room.id });
-      return { room, openAlarmCount: alarms.length };
-    }),
-  );
-}
-
 export function useRooms(): Rooms {
-  const [rooms, setRooms] = useState<RoomSummary[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [status, setStatus] = useState<RoomsStatus>('loading');
   const [error, setError] = useState<string>();
   const [reloadCount, setReloadCount] = useState(0);
@@ -40,10 +26,11 @@ export function useRooms(): Rooms {
     setStatus('loading');
     setError(undefined);
 
-    fetchRoomSummaries()
-      .then((summaries) => {
+    restWell
+      .listRooms({})
+      .then((response) => {
         if (!isCurrent) return;
-        setRooms(summaries);
+        setRooms(response.rooms);
         setStatus('ready');
       })
       .catch((reason: unknown) => {

@@ -6,7 +6,6 @@ import { Metric } from '../generated/restwell/v1/restwell_pb.js';
 import { restWell } from '../grpc/client.js';
 import { PI_URL } from '../grpc/config.js';
 import { useRoomLive } from '../grpc/useRoomLive.js';
-import { VARIANTS, runVariant } from './streamDiagnostics.js';
 import './GrpcTestPage.css';
 
 const TEST_ROOM_ID = 'room1';
@@ -37,26 +36,6 @@ function useListRooms(): string {
   return result;
 }
 
-// Voert de varianten na elkaar uit en logt ook naar de console (zichtbaar in de simulatorlogs).
-function useStreamDiagnostics(): string[] {
-  const [lines, setLines] = useState<string[]>([]);
-
-  useEffect(() => {
-    const log = (line: string) => {
-      console.info(`[stream-diag] ${line}`);
-      setLines((current) => [...current, line]);
-    };
-    (async () => {
-      for (const variant of VARIANTS) {
-        log(`— ${variant.name} —`);
-        await runVariant(variant, TEST_ROOM_ID, log);
-      }
-    })().catch((error: unknown) => log(`fout: ${String(error)}`));
-  }, []);
-
-  return lines;
-}
-
 function show(value: number | boolean | undefined, unit = ''): string {
   return value === undefined ? '–' : `${String(value)}${unit}`;
 }
@@ -65,7 +44,6 @@ export function GrpcTestPage() {
   const [apis, setApis] = useState<[string, boolean][]>([]);
   const rooms = useListRooms();
   const live = useRoomLive(TEST_ROOM_ID);
-  const diagnostics = useStreamDiagnostics();
 
   // Effecten draaien op de achtergrond-thread, waar fetch en co. bestaan.
   useEffect(() => setApis(checkWebApis()), []);
@@ -85,13 +63,6 @@ export function GrpcTestPage() {
 
       <text className="Heading">ListRooms (gewone RPC)</text>
       <text className="Line">{rooms}</text>
-
-      <text className="Heading">Stream-diagnose (ruwe fetch)</text>
-      {diagnostics.map((line, index) => (
-        <text key={index} className="Line">
-          {line}
-        </text>
-      ))}
 
       <text className="Heading">WatchRoom (live) – {TEST_ROOM_ID}</text>
       <text className="Line">Status: {live.status}</text>
