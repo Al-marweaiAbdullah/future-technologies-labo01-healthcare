@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 560" font-family="Arial, Helvetica, sans-serif">
+  <title>Schakelschema RestWell</title>
+  <desc>Raspberry Pi met GrovePi. Sensoren op D2, D4 en A0, actuatoren op D3 en D7, OLED op I2C-1.</desc>
+  <rect width="860" height="560" fill="#ffffff"/>
+
+  <text x="430" y="32" text-anchor="middle" font-size="20" font-weight="bold" fill="#111">RestWell – schakelschema (één kamer)</text>
+
+  <!-- Raspberry Pi + GrovePi -->
+  <rect x="300" y="70" width="260" height="330" rx="10" fill="#e8f1fb" stroke="#1f5fa8" stroke-width="2"/>
+  <text x="430" y="98" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Raspberry Pi</text>
+  <text x="430" y="118" text-anchor="middle" font-size="12" fill="#333">Node.js-programma, SQLite, gRPC-server :8080</text>
+  <rect x="320" y="136" width="220" height="236" rx="8" fill="#dff3e3" stroke="#2e7d32" stroke-width="2"/>
+  <text x="430" y="160" text-anchor="middle" font-size="15" font-weight="bold" fill="#111">GrovePi (steekt op de Pi)</text>
+  <text x="430" y="179" text-anchor="middle" font-size="12" fill="#333">microcontroller op I²C-adres 0x04</text>
+  <text x="430" y="198" text-anchor="middle" font-size="12" fill="#333">verbonden met I²C-bus 1 van de Pi</text>
+
+  <!-- poortlabels in GrovePi -->
+  <g font-size="13" fill="#111" font-weight="bold">
+    <text x="334" y="234">D2</text>
+    <text x="334" y="289">D4</text>
+    <text x="334" y="344">A0</text>
+    <text x="504" y="234">D3</text>
+    <text x="504" y="289">D7</text>
+    <text x="490" y="344">I2C-1</text>
+  </g>
+
+  <!-- Sensoren links -->
+  <text x="110" y="82" text-anchor="middle" font-size="14" font-weight="bold" fill="#111">Sensoren (invoer)</text>
+  <g stroke="#555" stroke-width="2">
+    <line x1="220" y1="230" x2="320" y2="230"/>
+    <line x1="220" y1="285" x2="320" y2="285"/>
+    <line x1="220" y1="340" x2="320" y2="340"/>
+  </g>
+  <g fill="#fff4dc" stroke="#b26a00" stroke-width="2">
+    <rect x="20" y="208" width="200" height="44" rx="6"/>
+    <rect x="20" y="263" width="200" height="44" rx="6"/>
+    <rect x="20" y="318" width="200" height="44" rx="6"/>
+  </g>
+  <g font-size="13" fill="#111">
+    <text x="120" y="227" text-anchor="middle" font-weight="bold">Temperatuur &amp; vocht</text>
+    <text x="120" y="243" text-anchor="middle" font-size="11">Grove DHT22 (wit) · digitaal</text>
+    <text x="120" y="282" text-anchor="middle" font-weight="bold">Beweging</text>
+    <text x="120" y="298" text-anchor="middle" font-size="11">Grove PIR · digitaal</text>
+    <text x="120" y="337" text-anchor="middle" font-weight="bold">Licht</text>
+    <text x="120" y="353" text-anchor="middle" font-size="11">Grove lichtsensor (LDR) · analoog 0–1023</text>
+  </g>
+
+  <!-- Actuatoren rechts -->
+  <text x="750" y="82" text-anchor="middle" font-size="14" font-weight="bold" fill="#111">Actuatoren (uitvoer)</text>
+  <g stroke="#555" stroke-width="2">
+    <line x1="540" y1="230" x2="640" y2="230"/>
+    <line x1="540" y1="285" x2="640" y2="285"/>
+    <line x1="540" y1="340" x2="640" y2="340"/>
+  </g>
+  <g fill="#fde8e8" stroke="#b3261e" stroke-width="2">
+    <rect x="640" y="208" width="200" height="44" rx="6"/>
+    <rect x="640" y="263" width="200" height="44" rx="6"/>
+    <rect x="640" y="318" width="200" height="44" rx="6"/>
+  </g>
+  <g font-size="13" fill="#111">
+    <text x="740" y="227" text-anchor="middle" font-weight="bold">LED</text>
+    <text x="740" y="243" text-anchor="middle" font-size="11">Grove Variable Color LED · actief laag</text>
+    <text x="740" y="282" text-anchor="middle" font-weight="bold">Buzzer</text>
+    <text x="740" y="298" text-anchor="middle" font-size="11">Grove buzzer · aan/uit</text>
+    <text x="740" y="337" text-anchor="middle" font-weight="bold">OLED 96×96 (SSD1327)</text>
+    <text x="740" y="353" text-anchor="middle" font-size="11">Grove OLED v2.1 · I²C-adres 0x3C</text>
+  </g>
+
+  <!-- Netwerk -->
+  <line x1="430" y1="400" x2="430" y2="440" stroke="#555" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="446" y="425" font-size="12" fill="#333">Wi-Fi · gRPC (ConnectRPC) · poort 8080</text>
+  <rect x="300" y="440" width="260" height="70" rx="10" fill="#efe8fb" stroke="#5b3fa3" stroke-width="2"/>
+  <text x="430" y="468" text-anchor="middle" font-size="15" font-weight="bold" fill="#111">Telefoon met RestWell-app</text>
+  <text x="430" y="488" text-anchor="middle" font-size="12" fill="#333">Lynx · dashboard, grafiek, alarmen bevestigen</text>
+
+  <!-- Legenda -->
+  <text x="20" y="545" font-size="11" fill="#333">Poortnummers staan in pi/src/config.ts. Er is geen geluidssensor, camera of microfoon. Prototype, geen medisch hulpmiddel.</text>
+</svg>
