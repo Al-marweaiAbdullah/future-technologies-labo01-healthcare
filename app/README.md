@@ -37,6 +37,17 @@ The terminal will display a QR code and a bundle URL.
 3. Open the Simulator (Xcode → Open Developer Tool → Simulator) and drag `LynxExplorer.app` into it.
 4. Paste the bundle URL into Lynx Explorer.
 
+## Screens
+
+| Folder | What |
+| --- | --- |
+| `src/App.tsx` | Switches between the two screens; shows the prototype banner on every screen |
+| `src/screens/` | `RoomListScreen` (all rooms) and `RoomDetailScreen` (readings and alarms of one room) |
+| `src/components/` | Small building blocks: `RoomRow`, `MeasurementRow`, `AlarmCard`, `PrototypeBanner` |
+| `src/format/` | Turns values from the contract into text (`21,5 °C`, `1 alarm`, ...), with tests |
+
+**Tap handlers that call the Pi must start with `'background only';`.** ReactLynx also runs component code on the main thread, where `fetch` does not exist; the directive removes the handler there. Network code in `useEffect` needs nothing: effects only run on the background thread.
+
 ## Talking to the Pi (gRPC)
 
 The app talks to the gRPC server on the Pi with [Connect](https://connectrpc.com/). Everything for that lives in `src/grpc/`:
@@ -47,6 +58,10 @@ The app talks to the gRPC server on the Pi with [Connect](https://connectrpc.com
 | `useRoomLive.ts` | `useRoomLive(roomId)`: live readings and open alarms of a room |
 | `roomState.ts` | How a message from the live stream updates what the app knows |
 | `config.ts` | The server address (`PUBLIC_PI_URL`) |
+| `useRooms.ts` | `useRooms()`: all rooms with their number of open alarms, fetched once |
+| `useLatestReading.ts` | `useLatestReading(roomId)`: the latest reading, fetched once (until `WatchRoom` works in Lynx) |
+| `acknowledgeAlarm.ts` | `acknowledgeAlarm(alarmId, initials)`: marks an alarm as seen |
+| `errors.ts` | Readable error messages for on screen |
 | `polyfills.ts` | `TextEncoder`/`TextDecoder` for Lynx. Must be the **first import** of every entry (`src/index.tsx`, `src/grpc-test/index.tsx`) |
 
 In a screen you only need the hook:
@@ -61,7 +76,7 @@ The types (`Reading`, `Alarm`, ...) are generated from `/proto` into `src/genera
 ### Server address
 
 1. Copy `.env.example` to `.env.local`.
-2. Set `PUBLIC_PI_URL` to the IP of the laptop running `npm run dev:fake` in `/pi` (find it with `ipconfig`), or later the Pi. `localhost` does not work on a phone.
+2. Set `PUBLIC_PI_URL` to the IP of the laptop running `npm run dev` in `/pi` (fake readings until the sensors are connected) (find it with `ipconfig`), or later the Pi. `localhost` does not work on a phone.
 3. Restart `npm run dev`.
 
 ### Test page
@@ -70,7 +85,7 @@ The types (`Reading`, `Alarm`, ...) are generated from `/proto` into `src/genera
 
 - which web APIs Lynx has (Connect needs `fetch`, `Headers`, `AbortController`, `ReadableStream`, `BigInt`, `TextEncoder` and `TextDecoder`)
 - whether a normal RPC works (`ListRooms`)
-- whether live data comes in (`WatchRoom`): a new reading every second with `npm run dev:fake`
+- whether live data comes in (`WatchRoom`): a new reading every second with `npm run dev` in `/pi`
 
 Live data needs `enableFetchAPIStandardStreaming` (set in `lynx.config.ts`), which is experimental and requires Lynx 3.7 or newer. Always test on a real phone: the web preview uses the browser's `fetch`, where streaming always works.
 

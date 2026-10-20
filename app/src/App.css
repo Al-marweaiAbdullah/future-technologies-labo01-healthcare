@@ -1,128 +1,218 @@
+/* Rustige kleuren voor een ziekenhuisomgeving; rood alleen voor alarmen. */
 :root {
-  background-color: #000;
-  --color-text: #fff;
-}
-
-.Background {
-  position: fixed;
-  background: radial-gradient(
-    71.43% 62.3% at 46.43% 36.43%,
-    rgba(18, 229, 229, 0) 15%,
-    rgba(239, 155, 255, 0.3) 56.35%,
-    #ff6448 100%
-  );
-  box-shadow: 0px 12.93px 28.74px 0px #ffd28db2 inset;
-  border-radius: 50%;
-  width: 200vw;
-  height: 200vw;
-  top: -60vw;
-  left: -14.27vw;
-  transform: rotate(15.25deg);
+  --color-background: #f3f5f7;
+  --color-card: #ffffff;
+  --color-text: #1c2430;
+  --color-text-muted: #66717f;
+  --color-border: #e1e5ea;
+  --color-primary: #1f6feb;
+  --color-ok: #2e9e5b;
+  --color-alarm: #d1352b;
+  --color-alarm-soft: #fdecea;
+  --color-banner: #fff4d6;
+  --color-banner-text: #6b5300;
 }
 
 .App {
-  position: relative;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  height: 100vh;
+  background-color: var(--color-background);
 }
 
-text {
+.PrototypeBanner {
+  padding: 52px 16px 8px;
+  background-color: var(--color-banner);
+}
+
+.PrototypeBanner-text {
+  font-size: 12px;
+  text-align: center;
+  color: var(--color-banner-text);
+}
+
+.Screen {
+  flex: 1;
+  padding: 16px;
+}
+
+.Screen-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.Section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin: 20px 0 8px;
+}
+
+.Card {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  background-color: var(--color-card);
+}
+
+.InfoText {
+  font-size: 15px;
+  color: var(--color-text-muted);
+}
+
+.ErrorText {
+  font-size: 14px;
+  color: var(--color-alarm);
+  margin-top: 6px;
+}
+
+/* Kameroverzicht */
+.RoomRow {
+  flex-direction: row;
+  align-items: center;
+}
+
+.StatusDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  margin-right: 12px;
+  background-color: var(--color-ok);
+}
+
+.StatusDot--alarm {
+  background-color: var(--color-alarm);
+}
+
+.RoomRow-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.RoomRow-name {
+  font-size: 17px;
+  font-weight: 600;
   color: var(--color-text);
 }
 
-.Banner {
-  flex: 5;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
+.RoomRow-status {
+  font-size: 14px;
+  color: var(--color-text-muted);
 }
 
-.Logo {
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 8px;
-}
-
-.Logo--react {
-  width: 100px;
-  height: 100px;
-  animation: Logo--spin infinite 20s linear;
-}
-
-.Logo--lynx {
-  width: 100px;
-  height: 100px;
-  animation: Logo--shake infinite 0.5s ease;
-}
-
-@keyframes Logo--spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes Logo--shake {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(0.9);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.Content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.Arrow {
-  width: 24px;
-  height: 24px;
-}
-
-.Title {
-  font-size: 36px;
-  font-weight: 700;
-}
-
-.Subtitle {
-  font-style: italic;
-  font-size: 22px;
+.RoomRow-status--alarm {
+  color: var(--color-alarm);
   font-weight: 600;
-  margin-bottom: 8px;
 }
 
-.Description {
-  font-size: 20px;
-  color: rgba(255, 255, 255, 0.85);
-  margin: 15rpx;
+.RoomRow-chevron {
+  font-size: 24px;
+  color: var(--color-text-muted);
 }
 
-.Hint {
-  font-size: 12px;
-  margin: 5px;
-  color: rgba(255, 255, 255, 0.65);
+/* Kamerdetail */
+.BackButton {
+  padding: 4px 0 12px;
 }
 
-.Hint-file {
-  font-style: italic;
-  color: rgba(255, 255, 255, 0.85);
+.BackButton-text {
+  font-size: 16px;
+  color: var(--color-primary);
 }
 
-.Spacer {
+.LiveStatus {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.LiveStatus--live {
+  color: var(--color-ok);
+}
+
+.MeasurementRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.MeasurementRow-label {
+  font-size: 15px;
+  color: var(--color-text-muted);
+}
+
+.MeasurementRow-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* Alarmen */
+.AlarmCard--active {
+  background-color: var(--color-alarm-soft);
+  border-left: 4px solid var(--color-alarm);
+}
+
+.AlarmCard-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.AlarmCard-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.AlarmCard-status {
+  font-size: 13px;
+  color: var(--color-alarm);
+}
+
+.AlarmCard-detail {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+.AlarmCard-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.AlarmCard-input {
   flex: 1;
+  height: 40px;
+  padding: 0 10px;
+  margin-right: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-card);
+  font-size: 15px;
+}
+
+.Button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  background-color: var(--color-primary);
+}
+
+.Button--secondary {
+  margin-top: 10px;
+  background-color: var(--color-text-muted);
+}
+
+.Button-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
 }
