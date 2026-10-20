@@ -1,3 +1,5 @@
+// Moet de eerste import blijven: zie de uitleg in grpc/polyfills.ts.
+import '../grpc/polyfills.js';
 import { root } from '@lynx-js/react';
 
 import { GrpcTestPage } from './GrpcTestPage.js';

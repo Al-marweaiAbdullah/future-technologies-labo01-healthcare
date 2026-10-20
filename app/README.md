@@ -47,7 +47,7 @@ The app talks to the gRPC server on the Pi with [Connect](https://connectrpc.com
 | `useRoomLive.ts` | `useRoomLive(roomId)`: live readings and open alarms of a room |
 | `roomState.ts` | How a message from the live stream updates what the app knows |
 | `config.ts` | The server address (`PUBLIC_PI_URL`) |
-| `polyfills.ts` | `TextEncoder`/`TextDecoder` for Lynx, loaded by `client.ts` |
+| `polyfills.ts` | `TextEncoder`/`TextDecoder` for Lynx. Must be the **first import** of every entry (`src/index.tsx`, `src/grpc-test/index.tsx`) |
 
 In a screen you only need the hook:
 
