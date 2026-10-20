@@ -45,6 +45,8 @@ RESTWELL_FAKE_HARDWARE=1 npm run hardware:check   # zonder Pi, met nepwaarden
 
 ## Bedrading
 
+![Schakelschema van RestWell: sensoren en actuatoren op de GrovePi](../../../docs/schakelschema.svg)
+
 Alles hangt aan een **GrovePi** (Dexter Industries) op de Raspberry Pi. De GrovePi heeft een eigen microcontroller op I²C-adres `0x04`: de Pi leest de Grove-poorten uit door I²C-commando's naar die chip te sturen, niet rechtstreeks via zijn eigen GPIO-pinnen.
 
 | GrovePi-poort | Onderdeel                                         | Uitgelezen als      |
