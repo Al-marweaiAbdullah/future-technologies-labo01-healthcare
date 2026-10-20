@@ -37,11 +37,50 @@ The terminal will display a QR code and a bundle URL.
 3. Open the Simulator (Xcode → Open Developer Tool → Simulator) and drag `LynxExplorer.app` into it.
 4. Paste the bundle URL into Lynx Explorer.
 
+## Talking to the Pi (gRPC)
+
+The app talks to the gRPC server on the Pi with [Connect](https://connectrpc.com/). Everything for that lives in `src/grpc/`:
+
+| File | What |
+| --- | --- |
+| `client.ts` | `restWell`: the client to call RPCs from the contract, e.g. `await restWell.listRooms({})` |
+| `useRoomLive.ts` | `useRoomLive(roomId)`: live readings and open alarms of a room |
+| `roomState.ts` | How a message from the live stream updates what the app knows |
+| `config.ts` | The server address (`PUBLIC_PI_URL`) |
+| `polyfills.ts` | `TextEncoder`/`TextDecoder` for Lynx, loaded by `client.ts` |
+
+In a screen you only need the hook:
+
+```tsx
+const { reading, alarms, status } = useRoomLive('room1');
+return <text>{reading?.temperatureC ?? '–'} °C</text>;
+```
+
+The types (`Reading`, `Alarm`, ...) are generated from `/proto` into `src/generated/` (not in git). This happens automatically before `npm run dev`, `build` and `test`, or by hand with `npm run generate`.
+
+### Server address
+
+1. Copy `.env.example` to `.env.local`.
+2. Set `PUBLIC_PI_URL` to the IP of the laptop running `npm run dev:fake` in `/pi` (find it with `ipconfig`), or later the Pi. `localhost` does not work on a phone.
+3. Restart `npm run dev`.
+
+### Test page
+
+`npm run dev` also builds a separate page, `grpc-test.lynx.bundle`, next to the app (`main.lynx.bundle`). Open its URL in Lynx Explorer. It shows:
+
+- which web APIs Lynx has (Connect needs `fetch`, `Headers`, `AbortController`, `ReadableStream`, `BigInt`, `TextEncoder` and `TextDecoder`)
+- whether a normal RPC works (`ListRooms`)
+- whether live data comes in (`WatchRoom`): a new reading every second with `npm run dev:fake`
+
+Live data needs `enableFetchAPIStandardStreaming` (set in `lynx.config.ts`), which is experimental and requires Lynx 3.7 or newer. Always test on a real phone: the web preview uses the browser's `fetch`, where streaming always works.
+
 ## Scripts
 
 | Command          | What it does                              |
 | ----------------- | ----------------------------------------- |
 | `npm run dev`     | Starts the dev server with live reload     |
-| `npm run build`   | Builds the app for production
+| `npm run build`   | Builds the app for production |
+| `npm run generate` | Generates the gRPC types from `/proto` into `src/generated/` |
+| `npm test`        | Runs the tests (Rstest) |
 
 Translated with DeepL.com (free version)
