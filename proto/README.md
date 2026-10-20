@@ -20,10 +20,12 @@ De map volgt de package-naam (`restwell.v1`). Een brekende wijziging komt later 
 | `ListRooms` | gewoon | Alle kamers |
 | `WatchRoom` | **live** (server-streaming) | Elke nieuwe meting en elke alarmwijziging van een kamer |
 | `ListReadings` | gewoon | Metingen vanaf een tijdstip, voor grafieken |
-| `ListOpenAlarms` | gewoon | Alarmen die nog niet opgelost zijn |
+| `ListOpenAlarms` | gewoon | Alarmen die aandacht vragen: nog niet opgelost, of opgelost maar nog niet gezien |
 | `AcknowledgeAlarm` | gewoon | "Ik heb het gezien": stopt de buzzer |
 
 Een alarm doorloopt: `ACTIVE` → `ACKNOWLEDGED` (iemand duidde "gezien" aan) → `RESOLVED` (waarde weer normaal).
+
+Komt de waarde terug normaal voor iemand het alarm zag, dan wordt het `RESOLVED` zonder `acknowledged_at_ms`. Zo'n alarm blijft in `ListOpenAlarms` staan tot iemand op "gezien" tikt: geen enkel alarm verdwijnt ongezien.
 
 ## Afspraken
 

@@ -6,7 +6,7 @@ import {
   getLatestMeasurement,
   getRoom,
   listMeasurements,
-  listOpenAlarms,
+  listAlarmsToShow,
   listRooms,
   type Db,
 } from "../db/index.ts";
@@ -54,7 +54,8 @@ export function createRestWellService(db: Db, log: Log): ServiceImpl<typeof Rest
 
     listOpenAlarms(req) {
       assertRoomExists(db, req.roomId);
-      return { alarms: listOpenAlarms(db, req.roomId).map(toAlarm) };
+      // Ook opgeloste alarmen die nog niemand zag: geen enkel alarm mag ongezien verdwijnen.
+      return { alarms: listAlarmsToShow(db, req.roomId).map(toAlarm) };
     },
 
     acknowledgeAlarm(req) {
@@ -79,10 +80,7 @@ export function createRestWellService(db: Db, log: Log): ServiceImpl<typeof Rest
       if (!existing) {
         throw new ConnectError(`alarm ${alarmId} bestaat niet`, Code.NotFound);
       }
-      if (existing.status === "resolved") {
-        throw new ConnectError(`alarm ${alarmId} is al opgelost`, Code.FailedPrecondition);
-      }
-      // Al bevestigd, bv. door een collega die tegelijk op "gezien" tikte: niets veranderen.
+      // Al gezien, bv. door een collega die tegelijk op "gezien" tikte: niets veranderen.
       return { alarm: toAlarm(existing) };
     },
   };

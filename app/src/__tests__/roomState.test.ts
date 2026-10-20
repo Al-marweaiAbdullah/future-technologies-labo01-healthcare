@@ -56,12 +56,22 @@ test('een gewijzigd alarm vervangt de oude versie', () => {
   expect(state.alarms[0]?.status).toBe(AlarmStatus.ACKNOWLEDGED);
 });
 
-test('een opgelost alarm verdwijnt', () => {
+test('een opgelost alarm dat niemand zag blijft staan', () => {
   let state = withOpenAlarms(INITIAL_ROOM_STATE, [alarm(1n, 1000n)]);
   state = applyRoomEvent(state, {
     case: 'alarm',
     value: alarm(1n, 1000n, AlarmStatus.RESOLVED),
   });
+
+  expect(state.alarms).toHaveLength(1);
+  expect(state.alarms[0]?.status).toBe(AlarmStatus.RESOLVED);
+});
+
+test('een opgelost en gezien alarm verdwijnt', () => {
+  let state = withOpenAlarms(INITIAL_ROOM_STATE, [alarm(1n, 1000n)]);
+  const seenAndResolved = alarm(1n, 1000n, AlarmStatus.RESOLVED);
+  seenAndResolved.acknowledgedAtMs = 2000n;
+  state = applyRoomEvent(state, { case: 'alarm', value: seenAndResolved });
 
   expect(state.alarms).toEqual([]);
 });

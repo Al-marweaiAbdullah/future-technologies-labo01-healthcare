@@ -1,5 +1,9 @@
 // Zet waarden uit het contract om naar tekst voor op het scherm. Pure functies, zonder Lynx.
-import { AlarmStatus, Metric } from '../generated/restwell/v1/restwell_pb.js';
+import {
+  AlarmStatus,
+  Metric,
+  type Alarm,
+} from '../generated/restwell/v1/restwell_pb.js';
 
 export const MISSING_VALUE = '–';
 
@@ -74,6 +78,17 @@ const ALARM_STATUS_LABELS: Record<AlarmStatus, string> = {
 
 export function alarmStatusLabel(status: AlarmStatus): string {
   return ALARM_STATUS_LABELS[status];
+}
+
+/** Zoals alarmStatusLabel, maar zegt erbij als een opgelost alarm nog door niemand gezien is. */
+export function alarmLabel(alarm: Alarm): string {
+  if (
+    alarm.status === AlarmStatus.RESOLVED &&
+    alarm.acknowledgedAtMs === undefined
+  ) {
+    return 'Opgelost, nog niet gezien';
+  }
+  return alarmStatusLabel(alarm.status);
 }
 
 /** Bv. `1 alarm` of `3 alarmen`; `Alles in orde` als er geen zijn. */

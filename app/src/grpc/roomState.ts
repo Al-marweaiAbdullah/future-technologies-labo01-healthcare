@@ -9,7 +9,7 @@ import {
 
 export type RoomState = {
   reading?: Reading; // de laatste meting
-  alarms: Alarm[]; // alarmen die nog niet opgelost zijn, oudste eerst
+  alarms: Alarm[]; // alarmen die aandacht vragen (zie needsAttention), oudste eerst
 };
 
 export const INITIAL_ROOM_STATE: RoomState = { alarms: [] };
@@ -19,10 +19,18 @@ function byStartTime(a: Alarm, b: Alarm): number {
   return a.startedAtMs < b.startedAtMs ? -1 : 1;
 }
 
-// Een nieuw of gewijzigd alarm vervangt de oude versie; een opgelost alarm verdwijnt.
+// Een alarm blijft staan tot het opgelost én gezien is: geen enkel alarm verdwijnt ongezien.
+export function needsAttention(alarm: Alarm): boolean {
+  return (
+    alarm.status !== AlarmStatus.RESOLVED ||
+    alarm.acknowledgedAtMs === undefined
+  );
+}
+
+// Een nieuw of gewijzigd alarm vervangt de oude versie; een afgehandeld alarm verdwijnt.
 function upsertAlarm(alarms: Alarm[], alarm: Alarm): Alarm[] {
   const others = alarms.filter((existing) => existing.id !== alarm.id);
-  if (alarm.status === AlarmStatus.RESOLVED) return others;
+  if (!needsAttention(alarm)) return others;
   return [...others, alarm].sort(byStartTime);
 }
 

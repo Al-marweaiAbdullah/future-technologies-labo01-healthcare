@@ -7,6 +7,7 @@ import {
   createAlarm,
   getAlarm,
   getOpenAlarmForSensor,
+  listAlarmsToShow,
   listOpenAlarms,
   resolveAlarm,
 } from "./alarms.ts";
@@ -74,11 +75,38 @@ test("resolveAlarm sluit een open alarm af", () => {
   assert.equal(resolveAlarm(db, alarm.id, RESOLVED_AT_MS), undefined);
 });
 
-test("een opgelost alarm kan niet meer bevestigd worden", () => {
+test("een opgelost alarm dat niemand zag kan nog als gezien gemarkeerd worden", () => {
   const alarm = createAlarm(db, tooWarmAlarm());
   resolveAlarm(db, alarm.id, RESOLVED_AT_MS);
 
-  assert.equal(acknowledgeAlarm(db, alarm.id, "VP", ACKNOWLEDGED_AT_MS), undefined);
+  const acknowledged = acknowledgeAlarm(db, alarm.id, "VP", ACKNOWLEDGED_AT_MS);
+  assert.equal(acknowledged?.status, "resolved");
+  assert.equal(acknowledged?.acknowledged_by, "VP");
+  assert.equal(acknowledged?.acknowledged_at_ms, ACKNOWLEDGED_AT_MS);
+  assert.equal(acknowledgeAlarm(db, alarm.id, "HV", ACKNOWLEDGED_AT_MS), undefined);
+});
+
+test("listAlarmsToShow houdt een opgelost alarm tot iemand het zag", () => {
+  const alarm = createAlarm(db, tooWarmAlarm());
+  resolveAlarm(db, alarm.id, RESOLVED_AT_MS);
+
+  assert.deepEqual(
+    listAlarmsToShow(db, DEFAULT_ROOM.id).map((shown) => shown.id),
+    [alarm.id],
+  );
+  assert.deepEqual(listOpenAlarms(db, DEFAULT_ROOM.id), []);
+
+  acknowledgeAlarm(db, alarm.id, "VP", ACKNOWLEDGED_AT_MS);
+  assert.deepEqual(listAlarmsToShow(db, DEFAULT_ROOM.id), []);
+});
+
+test("listAlarmsToShow toont een gezien alarm tot het opgelost is", () => {
+  const alarm = createAlarm(db, tooWarmAlarm());
+  acknowledgeAlarm(db, alarm.id, "VP", ACKNOWLEDGED_AT_MS);
+  assert.equal(listAlarmsToShow(db, DEFAULT_ROOM.id).length, 1);
+
+  resolveAlarm(db, alarm.id, RESOLVED_AT_MS);
+  assert.deepEqual(listAlarmsToShow(db, DEFAULT_ROOM.id), []);
 });
 
 test("getAlarm geeft een alarm in elke status, of undefined voor een onbekend id", () => {

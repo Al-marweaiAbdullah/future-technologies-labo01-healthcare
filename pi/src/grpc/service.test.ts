@@ -200,14 +200,30 @@ test("AcknowledgeAlarm: onbekend alarm geeft NOT_FOUND", async () => {
   );
 });
 
-test("AcknowledgeAlarm: opgelost alarm geeft FAILED_PRECONDITION", async () => {
+test("ListOpenAlarms toont een opgelost alarm tot iemand het zag", async () => {
   const alarmId = tooWarmAlarm();
   resolveAlarm(db, alarmId, 2000);
 
-  await assertConnectCode(
-    client.acknowledgeAlarm({ alarmId: BigInt(alarmId), acknowledgedBy: "VP" }),
-    Code.FailedPrecondition,
-  );
+  const [shown] = (await client.listOpenAlarms({ roomId: DEFAULT_ROOM.id })).alarms;
+  assert.equal(shown?.status, AlarmStatus.RESOLVED);
+  assert.equal(shown?.acknowledgedAtMs, undefined);
+
+  await client.acknowledgeAlarm({ alarmId: BigInt(alarmId), acknowledgedBy: "VP" });
+  assert.deepEqual((await client.listOpenAlarms({ roomId: DEFAULT_ROOM.id })).alarms, []);
+});
+
+test("AcknowledgeAlarm markeert een opgelost alarm dat niemand zag als gezien", async () => {
+  const alarmId = tooWarmAlarm();
+  resolveAlarm(db, alarmId, 2000);
+
+  const { alarm } = await client.acknowledgeAlarm({
+    alarmId: BigInt(alarmId),
+    acknowledgedBy: "VP",
+  });
+
+  assert.equal(alarm?.status, AlarmStatus.RESOLVED);
+  assert.equal(alarm?.acknowledgedBy, "VP");
+  assert.notEqual(alarm?.acknowledgedAtMs, undefined);
 });
 
 test("AcknowledgeAlarm zonder acknowledged_by geeft INVALID_ARGUMENT", async () => {

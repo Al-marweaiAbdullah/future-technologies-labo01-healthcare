@@ -1,7 +1,9 @@
 import type { Db } from "./connection.ts";
 import type { AlarmRow, NewAlarm, SensorName } from "./types.ts";
 
-// "Open" betekent nog niet opgelost: status 'active' of 'acknowledged'.
+// "Open" betekent nog niet opgelost: status 'active' of 'acknowledged'. Daarop beslissen
+// alarms/ en de buzzer. De app toont daarnaast ook opgeloste alarmen die nog niemand zag,
+// zodat geen enkel alarm ongezien verdwijnt (zie listAlarmsToShow).
 
 export function createAlarm(db: Db, alarm: NewAlarm): AlarmRow {
   return db
@@ -28,6 +30,18 @@ export function listOpenAlarms(db: Db, roomId: string): AlarmRow[] {
     .all(roomId) as AlarmRow[];
 }
 
+// Wat de app moet tonen: open alarmen, plus opgeloste alarmen die nog niemand gezien heeft.
+export function listAlarmsToShow(db: Db, roomId: string): AlarmRow[] {
+  return db
+    .prepare(
+      `SELECT * FROM alarms
+       WHERE room_id = ?
+         AND (status IN ('active', 'acknowledged') OR acknowledged_at_ms IS NULL)
+       ORDER BY started_at_ms`,
+    )
+    .all(roomId) as AlarmRow[];
+}
+
 export function getOpenAlarmForSensor(
   db: Db,
   roomId: string,
@@ -42,8 +56,9 @@ export function getOpenAlarmForSensor(
     .get(roomId, sensor) as AlarmRow | undefined;
 }
 
-// Alleen een actief alarm kan bevestigd worden.
-// Geeft het bijgewerkte alarm terug, of undefined als het onbekend of niet actief was.
+// Markeert een alarm dat nog niemand zag als gezien. Een actief alarm wordt 'acknowledged';
+// een al opgelost alarm blijft 'resolved', maar krijgt wie het zag en wanneer.
+// Geeft het bijgewerkte alarm terug, of undefined als het onbekend of al gezien was.
 export function acknowledgeAlarm(
   db: Db,
   alarmId: number,
@@ -53,8 +68,10 @@ export function acknowledgeAlarm(
   return db
     .prepare(
       `UPDATE alarms
-       SET status = 'acknowledged', acknowledged_at_ms = ?, acknowledged_by = ?
-       WHERE id = ? AND status = 'active'
+       SET status = CASE status WHEN 'active' THEN 'acknowledged' ELSE status END,
+           acknowledged_at_ms = ?,
+           acknowledged_by = ?
+       WHERE id = ? AND acknowledged_at_ms IS NULL
        RETURNING *`,
     )
     .get(nowMs, acknowledgedBy, alarmId) as AlarmRow | undefined;
