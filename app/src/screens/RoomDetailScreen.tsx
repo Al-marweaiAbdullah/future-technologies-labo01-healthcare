@@ -2,6 +2,7 @@ import { useCallback, useState } from '@lynx-js/react';
 
 import type { Alarm, Room } from '../generated/restwell/v1/restwell_pb.js';
 import { AlarmCard } from '../components/AlarmCard.js';
+import { HistorySection } from '../components/HistorySection.js';
 import { MeasurementRow } from '../components/MeasurementRow.js';
 import {
   formatHumidity,
@@ -77,6 +78,9 @@ export function RoomDetailScreen({ room, onBack }: RoomDetailScreenProps) {
           value={formatMotion(reading?.motionDetected)}
         />
       </view>
+
+      <text className="Section-title">Verloop</text>
+      <HistorySection roomId={room.id} liveReading={live.reading} />
 
       <text className="Section-title">Alarmen</text>
       {alarms.length === 0 && (

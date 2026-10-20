@@ -216,3 +216,111 @@
   font-weight: 600;
   color: #ffffff;
 }
+
+/* Verloop: keuzeknoppen, grafiek en samenvatting */
+.ChipRow {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 8px;
+}
+
+.Chip {
+  padding: 6px 12px;
+  margin-right: 6px;
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+}
+
+.Chip--selected {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+}
+
+.Chip-text {
+  font-size: 13px;
+  color: var(--color-text);
+}
+
+.Chip-text--selected {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.Chart {
+  display: flex;
+  flex-direction: column;
+  margin: 8px 0;
+}
+
+.Chart-body {
+  display: flex;
+  flex-direction: row;
+}
+
+.Chart-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 56px;
+  margin-right: 6px;
+}
+
+.Chart-bars {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.Chart-slot {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  margin: 0 1px;
+}
+
+.Chart-bar {
+  border-radius: 2px;
+  background-color: var(--color-primary);
+}
+
+.Chart-times {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-left: 62px;
+  margin-top: 4px;
+}
+
+.Chart-label {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.SummaryRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 8px 0 4px;
+}
+
+.Summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.Summary-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.Summary-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+}

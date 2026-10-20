@@ -43,8 +43,8 @@ The terminal will display a QR code and a bundle URL.
 | --- | --- |
 | `src/App.tsx` | Switches between the two screens; shows the prototype banner on every screen |
 | `src/screens/` | `RoomListScreen` (all rooms) and `RoomDetailScreen` (readings and alarms of one room) |
-| `src/components/` | Small building blocks: `RoomRow`, `MeasurementRow`, `AlarmCard`, `PrototypeBanner` |
-| `src/format/` | Turns values from the contract into text (`21,5 °C`, `1 alarm`, ...), with tests |
+| `src/components/` | Small building blocks: `RoomRow`, `MeasurementRow`, `AlarmCard`, `PrototypeBanner`, `HistorySection` and `HistoryChart` (bar chart built from views: Lynx has no chart library) |
+| `src/format/` | Turns values from the contract into text (`21,5 °C`, `1 alarm`, ...) and readings into chart buckets and min/avg/max (`history.ts`), with tests |
 
 **Tap handlers that call the Pi must start with `'background only';`.** ReactLynx also runs component code on the main thread, where `fetch` does not exist; the directive removes the handler there. Network code in `useEffect` needs nothing: effects only run on the background thread.
 
@@ -57,6 +57,7 @@ The app talks to the gRPC server on the Pi with [Connect](https://connectrpc.com
 | `client.ts` | `restWell`: the client for normal (unary) RPCs from the contract, e.g. `await restWell.listRooms({})` |
 | `watchRoom.ts` | `watchRoom(roomId, signal)`: the live stream `WatchRoom`, read without Connect's stream layer (see below) |
 | `envelope.ts` | Splits the stream into Connect messages (envelopes), with tests |
+| `useReadingHistory.ts` | `useReadingHistory(roomId, windowMs, liveReading)`: readings of a period via `ListReadings`, then extended with live readings |
 | `useRoomLive.ts` | `useRoomLive(roomId)`: live readings and open alarms of a room; reconnects after 3 s if the connection drops |
 | `roomState.ts` | How a message from the live stream updates what the app knows |
 | `config.ts` | The server address (`PUBLIC_PI_URL`) |
@@ -87,7 +88,7 @@ The types (`Reading`, `Alarm`, ...) are generated from `/proto` into `src/genera
 
 - which web APIs Lynx has (Connect needs `fetch`, `Headers`, `AbortController`, `ReadableStream`, `BigInt`, `TextEncoder` and `TextDecoder`)
 - whether a normal RPC works (`ListRooms`)
-- whether live data comes in (`WatchRoom`): a new reading every second with `npm run dev` in `/pi`
+- whether live data comes in (`WatchRoom`): a new reading every second with `npm run dev:fake` in `/pi`
 
 ### Live data in Lynx
 
