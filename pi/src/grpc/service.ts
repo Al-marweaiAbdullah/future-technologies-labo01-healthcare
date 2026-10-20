@@ -8,11 +8,20 @@ import {
   listMeasurements,
   listOpenAlarms,
   listRooms,
+  listThresholds,
+  updateThreshold,
   type Db,
 } from "../db/index.ts";
 import { RestWellService } from "./generated/restwell/v1/restwell_pb.js";
 import { publishAlarm, subscribe } from "./events.ts";
-import { toAlarm, toReading, toRoom } from "./mapping.ts";
+import {
+  toAlarm,
+  toReading,
+  toRoom,
+  toSensorName,
+  toThreshold,
+  toThresholdValues,
+} from "./mapping.ts";
 
 function assertRoomExists(db: Db, roomId: string): void {
   if (!getRoom(db, roomId)) {
@@ -27,6 +36,42 @@ export function createRestWellService(db: Db, log: Log): ServiceImpl<typeof Rest
   return {
     listRooms() {
       return { rooms: listRooms(db).map(toRoom) };
+    },
+
+    listThresholds(req) {
+      assertRoomExists(db, req.roomId);
+      return { thresholds: listThresholds(db, req.roomId).map(toThreshold) };
+    },
+
+    updateThreshold(req) {
+      const threshold = req.threshold;
+      if (!threshold) {
+        throw new ConnectError("threshold is verplicht", Code.InvalidArgument);
+      }
+      const sensor = toSensorName(threshold.metric);
+      if (!sensor) {
+        throw new ConnectError("metric is verplicht", Code.InvalidArgument);
+      }
+      assertRoomExists(db, threshold.roomId);
+
+      let updated;
+      try {
+        updated = updateThreshold(db, threshold.roomId, sensor, toThresholdValues(threshold));
+      } catch (error) {
+        // db/ weigert waarden die nooit kloppen, bv. een minimum boven het maximum.
+        if (error instanceof RangeError) {
+          throw new ConnectError(error.message, Code.InvalidArgument);
+        }
+        throw error;
+      }
+      if (!updated) {
+        throw new ConnectError(
+          `kamer "${threshold.roomId}" heeft geen drempel voor ${sensor}`,
+          Code.NotFound,
+        );
+      }
+      log(`Drempel aangepast voor kamer "${threshold.roomId}": ${sensor}`);
+      return { threshold: toThreshold(updated) };
     },
 
     async *watchRoom(req, context) {

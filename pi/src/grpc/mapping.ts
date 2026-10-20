@@ -1,4 +1,4 @@
-// Vertaalt rijen uit db/ naar de types uit het contract. Andere logica hoort hier niet.
+// Vertaalt tussen rijen uit db/ en de types uit het contract. Andere logica hoort hier niet.
 import { create } from "@bufbuild/protobuf";
 import type {
   AlarmRow,
@@ -6,6 +6,8 @@ import type {
   MeasurementRow,
   RoomRow,
   SensorName,
+  ThresholdRow,
+  ThresholdValues,
 } from "../db/index.ts";
 import {
   AlarmSchema,
@@ -13,9 +15,11 @@ import {
   Metric,
   ReadingSchema,
   RoomSchema,
+  ThresholdSchema,
   type Alarm,
   type Reading,
   type Room,
+  type Threshold,
 } from "./generated/restwell/v1/restwell_pb.js";
 
 const METRIC_BY_SENSOR: Record<SensorName, Metric> = {
@@ -24,6 +28,15 @@ const METRIC_BY_SENSOR: Record<SensorName, Metric> = {
   light: Metric.LIGHT,
   motion: Metric.MOTION,
 };
+
+const SENSOR_BY_METRIC = new Map<Metric, SensorName>(
+  Object.entries(METRIC_BY_SENSOR).map(([sensor, metric]) => [metric, sensor as SensorName]),
+);
+
+// De sensornaam in de database, of undefined voor METRIC_UNSPECIFIED of een onbekende waarde.
+export function toSensorName(metric: Metric): SensorName | undefined {
+  return SENSOR_BY_METRIC.get(metric);
+}
 
 const STATUS_BY_DB_STATUS: Record<DbAlarmStatus, AlarmStatus> = {
   active: AlarmStatus.ACTIVE,
@@ -69,4 +82,23 @@ export function toAlarm(row: AlarmRow): Alarm {
     acknowledgedBy: optional(row.acknowledged_by),
     resolvedAtMs: optionalBigInt(row.resolved_at_ms),
   });
+}
+
+export function toThreshold(row: ThresholdRow): Threshold {
+  return create(ThresholdSchema, {
+    roomId: row.room_id,
+    metric: METRIC_BY_SENSOR[row.sensor],
+    minValue: optional(row.min_value),
+    maxValue: optional(row.max_value),
+    maxDurationSec: optional(row.max_duration_sec),
+  });
+}
+
+// Een leeg veld in het contract wordt NULL in de database: geen grens aan die kant.
+export function toThresholdValues(threshold: Threshold): ThresholdValues {
+  return {
+    min_value: threshold.minValue ?? null,
+    max_value: threshold.maxValue ?? null,
+    max_duration_sec: threshold.maxDurationSec ?? null,
+  };
 }
