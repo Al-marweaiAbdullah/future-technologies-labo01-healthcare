@@ -13,6 +13,7 @@ export function createAlarm(db: Db, alarm: NewAlarm): AlarmRow {
     .get({ ...alarm, buzzer_after_sec: alarm.buzzer_after_sec ?? null }) as AlarmRow;
 }
 
+// Eén alarm op id, in elke status. Geeft undefined als het id niet bestaat.
 export function getAlarm(db: Db, alarmId: number): AlarmRow | undefined {
   return db.prepare("SELECT * FROM alarms WHERE id = ?").get(alarmId) as AlarmRow | undefined;
 }
@@ -59,14 +60,15 @@ export function acknowledgeAlarm(
     .get(nowMs, acknowledgedBy, alarmId) as AlarmRow | undefined;
 }
 
-// Sluit een open alarm af omdat de waarde weer normaal is. Geeft false terug als er niets veranderde.
-export function resolveAlarm(db: Db, alarmId: number, nowMs: number): boolean {
-  const result = db
+// Sluit een open alarm af omdat de waarde weer normaal is.
+// Geeft het bijgewerkte alarm terug, of undefined als het onbekend of al opgelost was.
+export function resolveAlarm(db: Db, alarmId: number, nowMs: number): AlarmRow | undefined {
+  return db
     .prepare(
       `UPDATE alarms
        SET status = 'resolved', resolved_at_ms = ?
-       WHERE id = ? AND status IN ('active', 'acknowledged')`,
+       WHERE id = ? AND status IN ('active', 'acknowledged')
+       RETURNING *`,
     )
-    .run(nowMs, alarmId);
-  return result.changes === 1;
+    .get(nowMs, alarmId) as AlarmRow | undefined;
 }
