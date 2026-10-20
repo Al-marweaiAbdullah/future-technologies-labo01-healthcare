@@ -5,6 +5,7 @@ import { DEFAULT_ROOM, seedDefaults } from "./seed.ts";
 import {
   acknowledgeAlarm,
   createAlarm,
+  getAlarm,
   getOpenAlarmForSensor,
   listOpenAlarms,
   resolveAlarm,
@@ -78,6 +79,16 @@ test("een opgelost alarm kan niet meer bevestigd worden", () => {
   resolveAlarm(db, alarm.id, RESOLVED_AT_MS);
 
   assert.equal(acknowledgeAlarm(db, alarm.id, "VP", ACKNOWLEDGED_AT_MS), undefined);
+});
+
+test("getAlarm geeft een alarm in elke status, of undefined voor een onbekend id", () => {
+  const alarm = createAlarm(db, tooWarmAlarm());
+  assert.deepEqual(getAlarm(db, alarm.id), alarm);
+
+  const resolved = resolveAlarm(db, alarm.id, RESOLVED_AT_MS);
+  assert.deepEqual(getAlarm(db, alarm.id), resolved);
+
+  assert.equal(getAlarm(db, 999), undefined);
 });
 
 test("getOpenAlarmForSensor vindt alleen open alarmen van die sensor", () => {

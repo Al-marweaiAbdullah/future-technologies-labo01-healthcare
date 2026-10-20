@@ -22,6 +22,7 @@ import { openDatabase, seedDefaults, saveMeasurement } from "./db/index.ts";
 | `listMeasurements(db, roomId, fromMs, toMs)` | Metingen in een periode, oudste eerst (voor grafieken)                                    |
 | `listThresholds(db, roomId)`                 | Drempels van een kamer                                                                    |
 | `createAlarm(db, alarm)`                     | Nieuw alarm met status `active`                                                           |
+| `getAlarm(db, alarmId)`                      | Eén alarm op id, in elke status, of `undefined`                                           |
 | `listOpenAlarms(db, roomId)`                 | Alarmen die nog niet opgelost zijn (`active` of `acknowledged`)                           |
 | `getOpenAlarmForSensor(db, roomId, sensor)`  | Het open alarm van één sensor, of `undefined`                                             |
 | `acknowledgeAlarm(db, alarmId, by, nowMs)`   | `active` → `acknowledged`. Geeft het alarm terug, of `undefined`                          |

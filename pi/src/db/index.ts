@@ -6,6 +6,7 @@ export { saveMeasurement, getLatestMeasurement, listMeasurements } from "./measu
 export { listThresholds } from "./thresholds.ts";
 export {
   createAlarm,
+  getAlarm,
   listOpenAlarms,
   getOpenAlarmForSensor,
   acknowledgeAlarm,
