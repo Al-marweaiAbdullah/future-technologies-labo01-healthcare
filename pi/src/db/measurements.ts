@@ -5,9 +5,9 @@ export function saveMeasurement(db: Db, measurement: NewMeasurement): Measuremen
   return db
     .prepare(
       `INSERT INTO measurements
-         (room_id, timestamp_ms, temperature_c, humidity_percent, light_raw, sound_raw, motion)
+         (room_id, timestamp_ms, temperature_c, humidity_percent, light_raw, motion)
        VALUES
-         (:room_id, :timestamp_ms, :temperature_c, :humidity_percent, :light_raw, :sound_raw, :motion)
+         (:room_id, :timestamp_ms, :temperature_c, :humidity_percent, :light_raw, :motion)
        RETURNING *`,
     )
     .get(measurement) as MeasurementRow;

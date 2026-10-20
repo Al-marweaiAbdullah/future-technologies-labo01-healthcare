@@ -7,7 +7,6 @@ export const THRESHOLDS: ThresholdRow[] = [
   { room_id: ROOM_ID, sensor: "temperature", min_value: 18, max_value: 24, max_duration_sec: null },
   { room_id: ROOM_ID, sensor: "humidity", min_value: 30, max_value: 60, max_duration_sec: null },
   { room_id: ROOM_ID, sensor: "light", min_value: null, max_value: 700, max_duration_sec: 60 },
-  { room_id: ROOM_ID, sensor: "sound", min_value: null, max_value: 600, max_duration_sec: 5 },
 ];
 
 // Een meting waarbij alles binnen de drempels valt.
@@ -18,7 +17,6 @@ export function normalMeasurement(overrides: Partial<NewMeasurement> = {}): NewM
     temperature_c: 21,
     humidity_percent: 45,
     light_raw: 300,
-    sound_raw: 200,
     motion: 0,
     ...overrides,
   };

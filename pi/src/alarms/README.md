@@ -30,7 +30,7 @@ const output = decideRoomOutput(listOpenAlarms(db, roomId), nowMs); // naar LED,
 
 ## Regels
 
-- **Nieuw alarm:** de waarde ligt buiten de drempel en er is nog geen open alarm voor die sensor. Met `max_duration_sec` moet ze langer dan die tijd buiten de drempel blijven (licht 60 s, geluid 5 s).
+- **Nieuw alarm:** de waarde ligt buiten de drempel en er is nog geen open alarm voor die sensor. Met `max_duration_sec` moet ze langer dan die tijd buiten de drempel blijven (licht 60 s).
 - **Opgelost:** de waarde is weer normaal. Dat geldt ook voor een bevestigd alarm.
 - **Geen waarde (`null`):** er verandert niets. **Beweging:** nooit een alarm, enkel gelogd.
 - **LED:** aan bij elk open alarm. **Buzzer:** een actief alarm dat ouder is dan `buzzer_after_sec`. **OLED:** reden van het belangrijkste alarm (eerst actieve, dan het oudste), anders "Alles OK".

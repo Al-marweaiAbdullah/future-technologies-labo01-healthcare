@@ -34,7 +34,8 @@ message Reading {
   optional double temperature_c = 3;
   optional double humidity_percent = 4;
   optional int32 light_raw = 5;  // ruwe waarde van de lichtsensor: 0 (donker) tot 1023 (fel licht), geen lux
-  optional int32 sound_db = 6;
+  reserved 6;  // was sound_db: er is geen geluidssensor
+  reserved "sound_db";
   optional bool motion_detected = 7;
 }
 
@@ -44,7 +45,8 @@ enum Metric {
   METRIC_TEMPERATURE = 1;  // 'temperature'
   METRIC_HUMIDITY = 2;     // 'humidity'
   METRIC_LIGHT = 3;        // 'light'
-  METRIC_SOUND = 4;        // 'sound'
+  reserved 4;  // was METRIC_SOUND: er is geen geluidssensor
+  reserved "METRIC_SOUND";
   METRIC_MOTION = 5;       // 'motion'
 }
 

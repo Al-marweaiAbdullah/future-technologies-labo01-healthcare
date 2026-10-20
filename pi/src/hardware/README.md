@@ -56,7 +56,7 @@ Alles hangt aan een **GrovePi** (Dexter Industries) op de Raspberry Pi. De Grove
 | A0            | Grove lichtsensor (LDR)                           | ruwe waarde 0–1023  |
 | I2C-1         | Grove OLED Display 96×96 v2.1 (SSD1327), `0x3C`   | 12 regels tekst     |
 
-Er is geen geluidssensor. `sound_raw` in de database blijft dus leeg (`null`).
+Er is geen geluidssensor; geluid is uit het hele project gehaald.
 
 Poortnummers en I²C-adressen staan in `src/config.ts`.
 

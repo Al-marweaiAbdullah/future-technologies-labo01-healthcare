@@ -30,7 +30,6 @@ export function fakeMeasurement(roomId: string, nowMs: number): NewMeasurement {
     temperature_c: round1(TEMPERATURE_BASE_C + TEMPERATURE_SWING_C * Math.sin(phase)),
     humidity_percent: round1(randomAround(45, 5)),
     light_raw: Math.round(randomAround(300, 50)),
-    sound_raw: Math.round(randomAround(200, 100)),
     motion: Math.random() < MOTION_CHANCE ? 1 : 0,
   };
 }

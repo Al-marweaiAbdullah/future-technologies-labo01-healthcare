@@ -81,7 +81,7 @@ test("getOpenAlarmForSensor vindt alleen open alarmen van die sensor", () => {
   const alarm = createAlarm(db, tooWarmAlarm());
 
   assert.equal(getOpenAlarmForSensor(db, DEFAULT_ROOM.id, "temperature")?.id, alarm.id);
-  assert.equal(getOpenAlarmForSensor(db, DEFAULT_ROOM.id, "sound"), undefined);
+  assert.equal(getOpenAlarmForSensor(db, DEFAULT_ROOM.id, "humidity"), undefined);
 
   resolveAlarm(db, alarm.id, RESOLVED_AT_MS);
   assert.equal(getOpenAlarmForSensor(db, DEFAULT_ROOM.id, "temperature"), undefined);

@@ -11,7 +11,7 @@ test("seedDefaults maakt de standaardkamer met drempels aan", () => {
 
   assert.deepEqual(listRooms(db), [DEFAULT_ROOM]);
   const sensors = listThresholds(db, DEFAULT_ROOM.id).map((threshold) => threshold.sensor);
-  assert.deepEqual(sensors, ["humidity", "light", "sound", "temperature"]);
+  assert.deepEqual(sensors, ["humidity", "light", "temperature"]);
 });
 
 test("seedDefaults twee keer uitvoeren maakt geen dubbels", () => {
@@ -20,5 +20,5 @@ test("seedDefaults twee keer uitvoeren maakt geen dubbels", () => {
   seedDefaults(db);
 
   assert.equal(listRooms(db).length, 1);
-  assert.equal(listThresholds(db, DEFAULT_ROOM.id).length, 4);
+  assert.equal(listThresholds(db, DEFAULT_ROOM.id).length, 3);
 });

@@ -32,7 +32,6 @@ function fakeMeasurement(
     temperature_c: 21.5,
     humidity_percent: 45,
     light_raw: 300,
-    sound_raw: 200,
     motion: 0,
     ...overrides,
   };

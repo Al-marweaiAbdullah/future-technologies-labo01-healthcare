@@ -74,7 +74,6 @@ export function GrpcTestPage() {
         Luchtvochtigheid: {show(live.reading?.humidityPercent, ' %')}
       </text>
       <text className="Line">Licht: {show(live.reading?.lightRaw)}</text>
-      <text className="Line">Geluid: {show(live.reading?.soundDb)}</text>
       <text className="Line">
         Beweging: {show(live.reading?.motionDetected)}
       </text>

@@ -4,12 +4,11 @@ type Direction = "too_low" | "too_high";
 
 type ReasonLabels = { too_low: string; too_high: string; unit: string };
 
-// Teksten voor de verpleging en de OLED. Licht en geluid zijn ruwe waarden, dus zonder eenheid.
+// Teksten voor de verpleging en de OLED. Licht is een ruwe waarde, dus zonder eenheid.
 const REASON_LABELS: Record<SensorName, ReasonLabels> = {
   temperature: { too_low: "Te koud", too_high: "Te warm", unit: " °C" },
   humidity: { too_low: "Te droog", too_high: "Te vochtig", unit: " %" },
   light: { too_low: "Te donker", too_high: "Licht te lang aan", unit: "" },
-  sound: { too_low: "Te stil", too_high: "Te luid", unit: "" },
   motion: { too_low: "Beweging", too_high: "Beweging", unit: "" },
 };
 
