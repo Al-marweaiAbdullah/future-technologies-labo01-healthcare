@@ -13,7 +13,7 @@ Importeer alleen uit `hardware/index.ts`.
 
 | Functie / type                      | Wat het doet                                                                                       |
 | ----------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `openHardware(): Promise<Hardware>` | Opent de echte hardware, of de nep-versie als `RESTWELL_FAKE_HARDWARE=1`                           |
+| `openHardware(): Promise<Hardware>` | Echte hardware, of de nep-versie met `--fake-hardware` of `RESTWELL_FAKE_HARDWARE=1`               |
 | `readAllSensors(hardware)`          | Leest alle sensoren één keer uit. Een sensor die faalt, wordt `null` (en de fout wordt gelogd)     |
 | `createFakeHardware()`              | Nep-hardware met verzonnen waarden. `state` toont wat LED, buzzer en OLED zouden doen (voor tests) |
 | `DISPLAY_MAX_LINES`                 | Aantal regels op de OLED (12). Langere tekst wordt afgeknipt                                       |

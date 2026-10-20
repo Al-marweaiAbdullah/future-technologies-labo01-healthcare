@@ -1,8 +1,11 @@
 // Nep-hardware voor ontwikkelen en testen zonder Pi. Verzonnen waarden, nooit echte gegevens.
 import type { Hardware } from "./types.ts";
 
-const TEMPERATURE_CENTER_C = 21;
-const TEMPERATURE_SPREAD_C = 1.5;
+const TEMPERATURE_BASE_C = 21;
+// Schommelt tussen 17 en 25 °C, zodat de drempels (18-24 °C) af en toe overschreden worden
+// en je ook zonder Pi alarmen ziet.
+const TEMPERATURE_SWING_C = 4;
+const TEMPERATURE_PERIOD_MS = 60_000;
 const HUMIDITY_CENTER_PERCENT = 45;
 const HUMIDITY_SPREAD_PERCENT = 5;
 const LIGHT_CENTER_RAW = 300;
@@ -27,8 +30,9 @@ export function createFakeHardware(): FakeHardware {
   return {
     state,
     async readTemperatureHumidity() {
+      const phase = (2 * Math.PI * Date.now()) / TEMPERATURE_PERIOD_MS;
       return {
-        temperatureC: round1(randomAround(TEMPERATURE_CENTER_C, TEMPERATURE_SPREAD_C)),
+        temperatureC: round1(TEMPERATURE_BASE_C + TEMPERATURE_SWING_C * Math.sin(phase)),
         humidityPercent: round1(randomAround(HUMIDITY_CENTER_PERCENT, HUMIDITY_SPREAD_PERCENT)),
       };
     },

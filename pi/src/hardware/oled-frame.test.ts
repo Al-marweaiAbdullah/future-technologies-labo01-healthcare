@@ -8,6 +8,7 @@ import {
   FRAME_BYTES,
   packFrame,
   renderLines,
+  wrapForDisplay,
 } from "./oled-frame.ts";
 
 function countOn(pixels: boolean[][]): number {
@@ -65,4 +66,20 @@ test("frame: 2 pixels per byte, gespiegeld en omgedraaid zodat linksboven ook li
   // Pixel linksboven komt in de allerlaatste byte van het frame, in de lage helft.
   assert.equal(frame[FRAME_BYTES - 1], 0x0f);
   assert.equal(frame.filter((byte) => byte !== 0).length, 1);
+});
+
+test("wrapForDisplay: korte tekst blijft één regel", () => {
+  assert.deepEqual(wrapForDisplay("Alles OK"), ["Alles OK"]);
+});
+
+test("wrapForDisplay: lange tekst breekt tussen woorden", () => {
+  assert.deepEqual(wrapForDisplay("Licht te lang aan: 950"), ["Licht te lang", "aan: 950"]);
+});
+
+test("wrapForDisplay: een te lang woord wordt geknipt", () => {
+  assert.deepEqual(wrapForDisplay("Luchtvochtigheidsmeter"), ["Luchtvochtigheid", "smeter"]);
+});
+
+test("wrapForDisplay: lege tekst geeft geen regels", () => {
+  assert.deepEqual(wrapForDisplay("  "), []);
 });
