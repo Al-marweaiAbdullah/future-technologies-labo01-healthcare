@@ -33,7 +33,8 @@ De types (`RoomRow`, `MeasurementRow`, `AlarmRow`, ...) staan in `types.ts` en w
 
 - Het bestand staat standaard in `pi/data/restwell.db`. Een ander pad kies je met de omgevingsvariabele `RESTWELL_DB_PATH` (zie `src/config.ts`).
 - Tijdstippen zijn Unix-tijd in milliseconden (UTC).
-- `light_raw` en `sound_raw` zijn ruwe sensorwaarden. De drempels in `seed.ts` (700 en 600) zijn voorlopig, tot de eenheid met hardware afgesproken is.
+- `light_raw` is de ruwe waarde van de lichtsensor: 0 (donker) tot 1023 (fel licht). De drempel in `seed.ts` is 900: gewoon kamerlicht gaf bij het testen ±765.
+- `sound_raw` is een ruwe sensorwaarde. De drempel in `seed.ts` (600) is voorlopig.
 
 ## Afspraken
 

@@ -3,8 +3,9 @@ import type { RoomRow, ThresholdRow } from "./types.ts";
 
 export const DEFAULT_ROOM: RoomRow = { id: "room1", name: "Kamer 1" };
 
-// TODO(abdullah): licht- en geluidswaarden afstemmen met hardware zodra de eenheid van de sensoren bekend is.
-const LIGHT_MAX_RAW = 700;
+// TODO(abdullah): geluidswaarden afstemmen met hardware zodra er een geluidssensor is.
+// Licht: ruwe waarde 0-1023. Gewoon kamerlicht gaf bij het testen ±765; pas daarboven is het te fel.
+const LIGHT_MAX_RAW = 900;
 const LIGHT_MAX_DURATION_SEC = 60; // kort gehouden voor de demo
 const SOUND_MAX_RAW = 600;
 const SOUND_MAX_DURATION_SEC = 5; // een dichtvallende deur is nog geen alarm

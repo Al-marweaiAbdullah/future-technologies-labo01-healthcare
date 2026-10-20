@@ -33,7 +33,7 @@ message Reading {
   int64 timestamp_ms = 2;
   optional double temperature_c = 3;
   optional double humidity_percent = 4;
-  optional int32 light_lux = 5;
+  optional int32 light_raw = 5;  // ruwe waarde van de lichtsensor: 0 (donker) tot 1023 (fel licht), geen lux
   optional int32 sound_db = 6;
   optional bool motion_detected = 7;
 }

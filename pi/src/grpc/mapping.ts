@@ -51,8 +51,8 @@ export function toReading(row: MeasurementRow): Reading {
     timestampMs: BigInt(row.timestamp_ms),
     temperatureC: optional(row.temperature_c),
     humidityPercent: optional(row.humidity_percent),
-    // De database bewaart ruwe sensorwaarden; het contract noemt ze nog lux en dB (gemeld, nog af te spreken).
-    lightLux: optional(row.light_raw),
+    lightRaw: optional(row.light_raw),
+    // De database bewaart een ruwe geluidswaarde; het contract noemt ze nog dB (gemeld, nog af te spreken).
     soundDb: optional(row.sound_raw),
     motionDetected: row.motion === null ? undefined : row.motion === 1,
   });
