@@ -24,6 +24,7 @@ Vereist Node.js 24 (`nvm use` leest `.nvmrc`). Alle commando's voer je uit in `p
 npm install         # dependencies installeren
 npm run dev         # RestWell starten (node src/main.ts)
 npm run dev:fake    # alleen de gRPC-server, met nepdata (zie src/grpc/README.md)
+npm run hardware:check  # sensoren uitlezen en tonen op terminal en OLED (zie src/hardware/README.md)
 npm test            # tests (node:test, bestanden *.test.ts)
 npm run lint        # ESLint
 npm run format      # Prettier: code formatteren
