@@ -1,12 +1,15 @@
 // Wat hardware/ aanbiedt aan de rest van de Pi-code. Importeer alleen uit dit bestand.
 import { USE_FAKE_HARDWARE } from "../config.ts";
 import { createFakeHardware } from "./fake.ts";
-import { openRealHardware } from "./real.ts";
 import type { Hardware } from "./types.ts";
 
 // Echte hardware, of de nep-versie als RESTWELL_FAKE_HARDWARE=1.
 export async function openHardware(): Promise<Hardware> {
-  return USE_FAKE_HARDWARE ? createFakeHardware() : openRealHardware();
+  if (USE_FAKE_HARDWARE) return createFakeHardware();
+  // Pas hier laden: real.ts gebruikt i2c-bus, een native module die alleen op Linux werkt.
+  // Anders crasht `npm run dev:fake` op een Mac al bij het opstarten.
+  const { openRealHardware } = await import("./real.ts");
+  return openRealHardware();
 }
 
 export { createFakeHardware, type FakeHardware } from "./fake.ts";
