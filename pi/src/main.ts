@@ -78,11 +78,8 @@ function processMeasurement(measurement: NewMeasurement, nowMs: number): void {
     publishAlarm(createAlarm(db, alarm));
   }
   for (const alarmId of result.alarmIdsToResolve) {
-    const alarm = openAlarms.find((open) => open.id === alarmId);
-    // resolveAlarm geeft geen rij terug, dus de app krijgt de open rij met de nieuwe status.
-    if (resolveAlarm(db, alarmId, nowMs) && alarm) {
-      publishAlarm({ ...alarm, status: "resolved", resolved_at_ms: nowMs });
-    }
+    const resolved = resolveAlarm(db, alarmId, nowMs);
+    if (resolved) publishAlarm(resolved);
   }
 }
 
