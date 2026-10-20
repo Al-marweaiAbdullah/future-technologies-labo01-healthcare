@@ -22,7 +22,6 @@ const METRIC_BY_SENSOR: Record<SensorName, Metric> = {
   temperature: Metric.TEMPERATURE,
   humidity: Metric.HUMIDITY,
   light: Metric.LIGHT,
-  sound: Metric.SOUND,
   motion: Metric.MOTION,
 };
 
@@ -51,9 +50,7 @@ export function toReading(row: MeasurementRow): Reading {
     timestampMs: BigInt(row.timestamp_ms),
     temperatureC: optional(row.temperature_c),
     humidityPercent: optional(row.humidity_percent),
-    // De database bewaart ruwe sensorwaarden; het contract noemt ze nog lux en dB (gemeld, nog af te spreken).
-    lightLux: optional(row.light_raw),
-    soundDb: optional(row.sound_raw),
+    lightRaw: optional(row.light_raw),
     motionDetected: row.motion === null ? undefined : row.motion === 1,
   });
 }

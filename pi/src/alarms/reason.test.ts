@@ -7,7 +7,6 @@ test("formatReason gebruikt een komma en de eenheid", () => {
   assert.equal(formatReason("humidity", "too_low", 25), "Te droog: 25 %");
 });
 
-test("formatReason toont ruwe waarden zonder eenheid", () => {
-  assert.equal(formatReason("sound", "too_high", 650), "Te luid: 650");
+test("formatReason toont een ruwe waarde zonder eenheid", () => {
   assert.equal(formatReason("light", "too_high", 800), "Licht te lang aan: 800");
 });

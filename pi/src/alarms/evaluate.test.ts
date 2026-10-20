@@ -103,9 +103,9 @@ test("eerste meting boven de drempel start de teller", () => {
   assert.deepEqual(result.exceededSince, new Map([["light", NOW_MS]]));
 });
 
-test("korte geluidspiek: geen alarm, de teller stopt als het weer stil is", () => {
+test("kort fel licht: geen alarm, de teller stopt als het weer normaal is", () => {
   const peak = evaluateMeasurement({
-    measurement: normalMeasurement({ sound_raw: 900 }),
+    measurement: normalMeasurement({ light_raw: 800 }),
     thresholds: THRESHOLDS,
     openAlarms: [],
     exceededSince: new Map(),

@@ -51,12 +51,12 @@ Regels voor de structuur:
 - **Testframework:** de ingebouwde `node:test`.
 - **gRPC:** ConnectRPC.
 - **Codegeneratie uit `/proto`:** Buf met `protoc-gen-es` (`npm run generate` in `/pi`), output in `pi/src/grpc/generated/`.
+- **Hardware:** Grove-sensoren op een GrovePi (Dexter Industries). Sensoren via `i2c-bus` met een eigen GrovePi-laag, OLED (SSD1327) via een eigen kleine driver met `oled-font-5x7` (zie `pi/src/hardware/README.md`).
 
 ## Open beslissingen
 
 Deze keuzes zijn **nog niet gemaakt**. Ga er niet van uit en kies ze niet op eigen houtje; vraag het eerst aan het team.
 
-- Welke libraries voor de sensoren en het OLED-scherm.
 - Of `/app` ook `node:test` gebruikt.
 
 Is een beslissing genomen? Pas dit bestand aan en verplaats het punt naar de juiste sectie.

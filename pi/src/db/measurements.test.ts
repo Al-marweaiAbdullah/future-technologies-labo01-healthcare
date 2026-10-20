@@ -13,7 +13,6 @@ function fakeMeasurement(timestampMs: number): NewMeasurement {
     temperature_c: 21.5,
     humidity_percent: 45,
     light_raw: 300,
-    sound_raw: 200,
     motion: 0,
   };
 }

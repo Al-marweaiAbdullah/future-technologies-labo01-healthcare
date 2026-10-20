@@ -66,7 +66,7 @@ function describeFakeMeasurement(measurement: NewMeasurement): string {
   return (
     `[${time}] Nepmeting opgeslagen: ${measurement.temperature_c} °C, ` +
     `${measurement.humidity_percent} %, licht ${measurement.light_raw}, ` +
-    `geluid ${measurement.sound_raw}, beweging ${measurement.motion ? "ja" : "nee"}`
+    `beweging ${measurement.motion ? "ja" : "nee"}`
   );
 }
 
@@ -77,8 +77,6 @@ function sampleOnce(): void {
     // - Dat wordt waarschijnlijk async: maak sampleOnce dan async en gebruik await.
     // - Een sensor die faalt geeft null voor zijn waarde (de kolommen zijn nullable),
     //   zodat de andere sensoren gewoon doorlopen. alarms/ doet niets met null.
-    // - light_raw en sound_raw zijn ruwe waarden: spreek de eenheid af en pas dan samen met
-    //   backend de voorlopige drempels in db/seed.ts aan.
     // - Verwijder dan fakeMeasurement uit grpc/ als niemand het nog gebruikt.
     // - Haal ook de log hieronder weg: echte meetwaarden horen niet in de log (zie AGENTS.md).
     const measurement = fakeMeasurement(ROOM_ID, nowMs);

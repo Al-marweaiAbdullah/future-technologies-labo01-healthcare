@@ -23,6 +23,7 @@ Vereist Node.js 24 (`nvm use` leest `.nvmrc`). Alle commando's voer je uit in `p
 ```bash
 npm install         # dependencies installeren
 npm run dev         # RestWell starten (node src/main.ts), voorlopig met nepmetingen
+npm run hardware:check  # sensoren uitlezen en tonen op terminal en OLED (zie src/hardware/README.md)
 npm test            # tests (node:test, bestanden *.test.ts)
 npm run lint        # ESLint
 npm run format      # Prettier: code formatteren

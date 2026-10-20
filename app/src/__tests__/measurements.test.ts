@@ -9,7 +9,6 @@ import {
   formatLight,
   formatMetricValue,
   formatMotion,
-  formatSound,
   formatTemperature,
   formatTime,
   metricLabel,
@@ -25,14 +24,12 @@ describe('meetwaarden', () => {
     expect(formatTemperature(undefined)).toBe(MISSING_VALUE);
     expect(formatHumidity(undefined)).toBe(MISSING_VALUE);
     expect(formatLight(undefined)).toBe(MISSING_VALUE);
-    expect(formatSound(undefined)).toBe(MISSING_VALUE);
     expect(formatMotion(undefined)).toBe(MISSING_VALUE);
   });
 
-  test('luchtvochtigheid, licht en geluid', () => {
+  test('luchtvochtigheid en licht', () => {
     expect(formatHumidity(44.6)).toBe('45 %');
-    expect(formatLight(300)).toBe('300 lux');
-    expect(formatSound(62)).toBe('62 dB');
+    expect(formatLight(300)).toBe('300');
   });
 
   test('beweging', () => {
@@ -49,12 +46,12 @@ describe('meetwaarden', () => {
 describe('alarmen', () => {
   test('naam van de sensor', () => {
     expect(metricLabel(Metric.TEMPERATURE)).toBe('Temperatuur');
-    expect(metricLabel(Metric.SOUND)).toBe('Geluid');
+    expect(metricLabel(Metric.LIGHT)).toBe('Licht');
   });
 
   test('waarde in de eenheid van de sensor', () => {
     expect(formatMetricValue(Metric.TEMPERATURE, 26)).toBe('26,0 °C');
-    expect(formatMetricValue(Metric.SOUND, 80)).toBe('80 dB');
+    expect(formatMetricValue(Metric.LIGHT, 950)).toBe('950');
     expect(formatMetricValue(Metric.MOTION, 1)).toBe('Beweging');
     expect(formatMetricValue(Metric.HUMIDITY, undefined)).toBe(MISSING_VALUE);
   });

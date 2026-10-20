@@ -14,23 +14,32 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc",
-    "generate": "buf generate"
+    "generate": "buf generate",
+    "hardware:check": "node src/hardware/check.ts"
   },
   "dependencies": {
     "@bufbuild/protobuf": "2.16.0",
     "@connectrpc/connect": "2.2.0",
     "@connectrpc/connect-node": "2.2.0",
-    "better-sqlite3": "13.0.3"
+    "better-sqlite3": "13.0.3",
+    "i2c-bus": "5.2.3",
+    "oled-font-5x7": "1.0.3"
   },
   "devDependencies": {
     "@bufbuild/buf": "1.74.0",
     "@bufbuild/protoc-gen-es": "2.16.0",
     "@eslint/js": "10.0.1",
     "@types/better-sqlite3": "9.6.0",
+    "@types/i2c-bus": "5.1.2",
     "@types/node": "24.19.2",
     "eslint": "10.13.0",
     "prettier": "3.9.10",
     "typescript": "6.0.3",
     "typescript-eslint": "8.71.2"
+  },
+  "allowScripts": {
+    "better-sqlite3@13.0.3": true,
+    "i2c-bus@5.2.3": true,
+    "@bufbuild/buf@1.74.0": true
   }
 }

@@ -13,8 +13,6 @@ function sensorValue(measurement: NewMeasurement, sensor: SensorName): number | 
       return measurement.humidity_percent;
     case "light":
       return measurement.light_raw;
-    case "sound":
-      return measurement.sound_raw;
     case "motion":
       return measurement.motion;
   }

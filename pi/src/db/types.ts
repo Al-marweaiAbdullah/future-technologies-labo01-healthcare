@@ -1,6 +1,6 @@
 // Rij-types van de database. Ze blijven binnen db/: naar buiten gaan de types uit /proto.
 
-export type SensorName = "temperature" | "humidity" | "light" | "sound" | "motion";
+export type SensorName = "temperature" | "humidity" | "light" | "motion";
 export type AlarmStatus = "active" | "acknowledged" | "resolved";
 
 export type RoomRow = {
@@ -15,7 +15,6 @@ export type MeasurementRow = {
   temperature_c: number | null;
   humidity_percent: number | null;
   light_raw: number | null;
-  sound_raw: number | null;
   motion: 0 | 1 | null; // SQLite kent geen boolean
 };
 

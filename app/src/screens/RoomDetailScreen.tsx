@@ -7,7 +7,6 @@ import {
   formatHumidity,
   formatLight,
   formatMotion,
-  formatSound,
   formatTemperature,
   formatTime,
 } from '../format/measurements.js';
@@ -72,8 +71,7 @@ export function RoomDetailScreen({ room, onBack }: RoomDetailScreenProps) {
           label="Luchtvochtigheid"
           value={formatHumidity(reading?.humidityPercent)}
         />
-        <MeasurementRow label="Licht" value={formatLight(reading?.lightLux)} />
-        <MeasurementRow label="Geluid" value={formatSound(reading?.soundDb)} />
+        <MeasurementRow label="Licht" value={formatLight(reading?.lightRaw)} />
         <MeasurementRow
           label="Beweging"
           value={formatMotion(reading?.motionDetected)}

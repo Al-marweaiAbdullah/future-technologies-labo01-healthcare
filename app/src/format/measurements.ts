@@ -17,12 +17,9 @@ export function formatHumidity(percent?: number): string {
   return percent === undefined ? MISSING_VALUE : `${Math.round(percent)} %`;
 }
 
-export function formatLight(lux?: number): string {
-  return lux === undefined ? MISSING_VALUE : `${lux} lux`;
-}
-
-export function formatSound(decibel?: number): string {
-  return decibel === undefined ? MISSING_VALUE : `${decibel} dB`;
+/** Ruwe waarde van de lichtsensor: 0 (donker) tot 1023 (fel licht), dus zonder eenheid. */
+export function formatLight(raw?: number): string {
+  return raw === undefined ? MISSING_VALUE : String(raw);
 }
 
 export function formatMotion(detected?: boolean): string {
@@ -45,7 +42,6 @@ const METRIC_LABELS: Record<Metric, string> = {
   [Metric.TEMPERATURE]: 'Temperatuur',
   [Metric.HUMIDITY]: 'Luchtvochtigheid',
   [Metric.LIGHT]: 'Licht',
-  [Metric.SOUND]: 'Geluid',
   [Metric.MOTION]: 'Beweging',
 };
 
@@ -62,8 +58,6 @@ export function formatMetricValue(metric: Metric, value?: number): string {
       return formatHumidity(value);
     case Metric.LIGHT:
       return formatLight(value);
-    case Metric.SOUND:
-      return formatSound(value);
     case Metric.MOTION:
       return formatMotion(value === undefined ? undefined : value !== 0);
     default:

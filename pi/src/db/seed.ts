@@ -3,11 +3,9 @@ import type { RoomRow, ThresholdRow } from "./types.ts";
 
 export const DEFAULT_ROOM: RoomRow = { id: "room1", name: "Kamer 1" };
 
-// TODO(abdullah): licht- en geluidswaarden afstemmen met hardware zodra de eenheid van de sensoren bekend is.
-const LIGHT_MAX_RAW = 700;
+// Licht: ruwe waarde 0-1023. Gewoon kamerlicht gaf bij het testen ±765; pas daarboven is het te fel.
+const LIGHT_MAX_RAW = 900;
 const LIGHT_MAX_DURATION_SEC = 60; // kort gehouden voor de demo
-const SOUND_MAX_RAW = 600;
-const SOUND_MAX_DURATION_SEC = 5; // een dichtvallende deur is nog geen alarm
 
 const DEFAULT_THRESHOLDS: Omit<ThresholdRow, "room_id">[] = [
   { sensor: "temperature", min_value: 18, max_value: 24, max_duration_sec: null },
@@ -17,12 +15,6 @@ const DEFAULT_THRESHOLDS: Omit<ThresholdRow, "room_id">[] = [
     min_value: null,
     max_value: LIGHT_MAX_RAW,
     max_duration_sec: LIGHT_MAX_DURATION_SEC,
-  },
-  {
-    sensor: "sound",
-    min_value: null,
-    max_value: SOUND_MAX_RAW,
-    max_duration_sec: SOUND_MAX_DURATION_SEC,
   },
   // beweging heeft geen drempel: die wordt enkel gelogd
 ];
