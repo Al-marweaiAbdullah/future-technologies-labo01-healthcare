@@ -4,6 +4,7 @@ import {
   BUZZER_PORT,
   GROVEPI_I2C_ADDRESS,
   I2C_BUS_NUMBER,
+  LED_ACTIVE_LOW,
   LED_PORT,
   LIGHT_PORT,
   MOTION_PORT,
@@ -24,20 +25,24 @@ export async function openRealHardware(): Promise<Hardware> {
   await grovePi.setPinMode(MOTION_PORT, "input");
   await grovePi.setPinMode(LED_PORT, "output");
   await grovePi.setPinMode(BUZZER_PORT, "output");
+
+  const setLed = (on: boolean) => grovePi.digitalWrite(LED_PORT, LED_ACTIVE_LOW ? !on : on);
+  const setBuzzer = (on: boolean) => grovePi.digitalWrite(BUZZER_PORT, on);
+
   // Na een herstart van het programma kan de buzzer nog aan staan van de vorige keer.
-  await grovePi.digitalWrite(LED_PORT, false);
-  await grovePi.digitalWrite(BUZZER_PORT, false);
+  await setLed(false);
+  await setBuzzer(false);
 
   return {
     readTemperatureHumidity: () => grovePi.readDht22(TEMPERATURE_HUMIDITY_PORT),
     readLightRaw: () => grovePi.analogRead(LIGHT_PORT),
     readMotionDetected: () => grovePi.digitalRead(MOTION_PORT),
-    setLed: (on) => grovePi.digitalWrite(LED_PORT, on),
-    setBuzzer: (on) => grovePi.digitalWrite(BUZZER_PORT, on),
+    setLed,
+    setBuzzer,
     showOnDisplay: (lines) => display.show(lines),
     async close() {
-      await grovePi.digitalWrite(LED_PORT, false);
-      await grovePi.digitalWrite(BUZZER_PORT, false);
+      await setLed(false);
+      await setBuzzer(false);
       await display.clear();
       await bus.close();
     },

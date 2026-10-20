@@ -11,6 +11,6 @@ export async function openHardware(): Promise<Hardware> {
 
 export { createFakeHardware, type FakeHardware } from "./fake.ts";
 export { readAllSensors } from "./read-all.ts";
-export { DISPLAY_MAX_CHARS_PER_LINE, DISPLAY_MAX_LINES } from "./oled-frame.ts";
+export { DISPLAY_MAX_CHARS_PER_LINE, DISPLAY_MAX_LINES, wrapForDisplay } from "./oled-frame.ts";
 export { ANALOG_MAX as LIGHT_RAW_MAX } from "./grovepi-protocol.ts";
 export type * from "./types.ts";

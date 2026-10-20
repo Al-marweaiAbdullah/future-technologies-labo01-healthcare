@@ -15,7 +15,8 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc",
     "generate": "buf generate",
-    "hardware:check": "node src/hardware/check.ts"
+    "hardware:check": "node src/hardware/check.ts",
+    "dev:fake": "node src/main.ts --fake-hardware"
   },
   "dependencies": {
     "@bufbuild/protobuf": "2.16.0",

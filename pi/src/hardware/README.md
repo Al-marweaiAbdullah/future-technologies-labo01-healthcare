@@ -13,7 +13,7 @@ Importeer alleen uit `hardware/index.ts`.
 
 | Functie / type                      | Wat het doet                                                                                       |
 | ----------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `openHardware(): Promise<Hardware>` | Opent de echte hardware, of de nep-versie als `RESTWELL_FAKE_HARDWARE=1`                           |
+| `openHardware(): Promise<Hardware>` | Echte hardware, of de nep-versie met `--fake-hardware` of `RESTWELL_FAKE_HARDWARE=1`               |
 | `readAllSensors(hardware)`          | Leest alle sensoren één keer uit. Een sensor die faalt, wordt `null` (en de fout wordt gelogd)     |
 | `createFakeHardware()`              | Nep-hardware met verzonnen waarden. `state` toont wat LED, buzzer en OLED zouden doen (voor tests) |
 | `DISPLAY_MAX_LINES`                 | Aantal regels op de OLED (12). Langere tekst wordt afgeknipt                                       |
@@ -59,6 +59,8 @@ Alles hangt aan een **GrovePi** (Dexter Industries) op de Raspberry Pi. De Grove
 Er is geen geluidssensor; geluid is uit het hele project gehaald.
 
 Poortnummers en I²C-adressen staan in `src/config.ts`.
+
+De LED werkt omgekeerd: ze brandt als D3 laag is. `setLed(true)` houdt daar rekening mee (`LED_ACTIVE_LOW` in `src/config.ts`). Vervang je de LED door een gewone, zet die waarde dan op `false`.
 
 ## Voorbereiding op de Pi
 

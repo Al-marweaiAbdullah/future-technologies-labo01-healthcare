@@ -76,7 +76,7 @@ The types (`Reading`, `Alarm`, ...) are generated from `/proto` into `src/genera
 ### Server address
 
 1. Copy `.env.example` to `.env.local`.
-2. Set `PUBLIC_PI_URL` to the IP of the laptop running `npm run dev` in `/pi` (fake readings until the sensors are connected) (find it with `ipconfig`), or later the Pi. `localhost` does not work on a phone.
+2. Set `PUBLIC_PI_URL` to the IP of the laptop running `npm run dev:fake` in `/pi` (fake readings, find the IP with `ipconfig`), or of the Pi running `npm run dev` (real sensors). `localhost` does not work on a phone.
 3. Restart `npm run dev`.
 
 ### Test page

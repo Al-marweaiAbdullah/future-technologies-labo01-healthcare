@@ -76,3 +76,26 @@ export function packFrame(pixels: boolean[][]): Buffer {
   }
   return frame;
 }
+
+// Verdeelt tekst over regels die op het scherm passen, zonder woorden te splitsen.
+// Alleen een woord dat op zich al te lang is, wordt over twee regels geknipt.
+export function wrapForDisplay(text: string): string[] {
+  const lines: string[] = [];
+  let current = "";
+  for (const word of text.split(/\s+/).filter(Boolean)) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length <= DISPLAY_MAX_CHARS_PER_LINE) {
+      current = candidate;
+      continue;
+    }
+    if (current) lines.push(current);
+    let rest = word;
+    while (rest.length > DISPLAY_MAX_CHARS_PER_LINE) {
+      lines.push(rest.slice(0, DISPLAY_MAX_CHARS_PER_LINE));
+      rest = rest.slice(DISPLAY_MAX_CHARS_PER_LINE);
+    }
+    current = rest;
+  }
+  if (current) lines.push(current);
+  return lines;
+}
