@@ -18,7 +18,10 @@ function assertRoomExists(db: Db, roomId: string): void {
   }
 }
 
-export function createRestWellService(db: Db): ServiceImpl<typeof RestWellService> {
+// Logt alleen wat er gebeurt (verbindingen), nooit meetwaarden.
+export type Log = (message: string) => void;
+
+export function createRestWellService(db: Db, log: Log): ServiceImpl<typeof RestWellService> {
   return {
     listRooms() {
       return { rooms: listRooms(db).map(toRoom) };
@@ -27,12 +30,17 @@ export function createRestWellService(db: Db): ServiceImpl<typeof RestWellServic
     async *watchRoom(req, context) {
       assertRoomExists(db, req.roomId);
       const events = subscribe(req.roomId, context.signal);
+      log(`WatchRoom geopend voor kamer "${req.roomId}"`);
 
-      const latest = getLatestMeasurement(db, req.roomId);
-      if (latest) yield { event: { case: "reading", value: toReading(latest) } };
+      try {
+        const latest = getLatestMeasurement(db, req.roomId);
+        if (latest) yield { event: { case: "reading", value: toReading(latest) } };
 
-      for await (const event of events) {
-        yield { event };
+        for await (const event of events) {
+          yield { event };
+        }
+      } finally {
+        log(`WatchRoom gesloten voor kamer "${req.roomId}"`);
       }
     },
 

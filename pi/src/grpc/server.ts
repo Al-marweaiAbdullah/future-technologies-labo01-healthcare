@@ -1,6 +1,6 @@
 // Start de gRPC-server waarmee de app met de Pi praat.
 // Connect spreekt over HTTP/1.1 het Connect- en gRPC-Web-protocol, zodat de Lynx-app het met fetch kan aanroepen.
-import { createServer, type Server } from "node:http";
+import { createServer, type IncomingMessage, type Server } from "node:http";
 import { cors as connectCors } from "@connectrpc/connect";
 import { connectNodeAdapter } from "@connectrpc/connect-node";
 import type { Db } from "../db/index.ts";
@@ -15,10 +15,20 @@ const CORS_HEADERS = {
   "Access-Control-Expose-Headers": connectCors.exposedHeaders.join(", "),
 };
 
+// "::ffff:192.168.1.23" wordt "192.168.1.23", zodat je het adres van de telefoon herkent.
+function clientAddress(req: IncomingMessage): string {
+  return req.socket.remoteAddress?.replace(/^::ffff:/, "") ?? "onbekend";
+}
+
+// "/restwell.v1.RestWellService/ListRooms" wordt "ListRooms".
+function rpcName(req: IncomingMessage): string {
+  return req.url?.split("/").pop() ?? "";
+}
+
 export function startGrpcServer(db: Db, port: number): Server {
   const handler = connectNodeAdapter({
     routes(router) {
-      router.service(RestWellService, createRestWellService(db));
+      router.service(RestWellService, createRestWellService(db, console.log));
     },
   });
 
@@ -28,6 +38,8 @@ export function startGrpcServer(db: Db, port: number): Server {
       res.writeHead(204).end();
       return;
     }
+    // Toont dat de app de Pi bereikt; blijft dit leeg, dan ligt het aan het netwerk.
+    console.log(`Oproep ${rpcName(req)} van ${clientAddress(req)}`);
     handler(req, res);
   });
 
