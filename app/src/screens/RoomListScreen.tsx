@@ -28,12 +28,8 @@ export function RoomListScreen({ onSelectRoom }: RoomListScreenProps) {
         <text className="InfoText">Nog geen kamers op de Pi.</text>
       )}
 
-      {rooms.map((summary) => (
-        <RoomRow
-          key={summary.room.id}
-          summary={summary}
-          onPress={() => onSelectRoom(summary.room)}
-        />
+      {rooms.map((room) => (
+        <RoomRow key={room.id} room={room} onPress={() => onSelectRoom(room)} />
       ))}
     </scroll-view>
   );

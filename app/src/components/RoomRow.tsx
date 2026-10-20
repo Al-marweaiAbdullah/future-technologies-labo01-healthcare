@@ -1,24 +1,32 @@
-import { formatAlarmCount } from '../format/measurements.js';
-import type { RoomSummary } from '../grpc/useRooms.js';
+import type { Room } from '../generated/restwell/v1/restwell_pb.js';
+import { formatAlarmCount, formatTemperature } from '../format/measurements.js';
+import { useRoomLive } from '../grpc/useRoomLive.js';
 
 type RoomRowProps = {
-  summary: RoomSummary;
+  room: Room;
   onPress: () => void;
 };
 
-export function RoomRow({ summary, onPress }: RoomRowProps) {
-  const hasAlarm = summary.openAlarmCount > 0;
+// Elke rij luistert live naar haar kamer, zodat een nieuw alarm meteen rood kleurt.
+export function RoomRow({ room, onPress }: RoomRowProps) {
+  const live = useRoomLive(room.id);
+  const hasAlarm = live.alarms.length > 0;
+  const temperature = live.reading
+    ? ` · ${formatTemperature(live.reading.temperatureC)}`
+    : '';
+
   return (
     <view className="Card RoomRow" bindtap={onPress}>
       <view className={hasAlarm ? 'StatusDot StatusDot--alarm' : 'StatusDot'} />
       <view className="RoomRow-text">
-        <text className="RoomRow-name">{summary.room.name}</text>
+        <text className="RoomRow-name">{room.name}</text>
         <text
           className={
             hasAlarm ? 'RoomRow-status RoomRow-status--alarm' : 'RoomRow-status'
           }
         >
-          {formatAlarmCount(summary.openAlarmCount)}
+          {formatAlarmCount(live.alarms.length)}
+          {temperature}
         </text>
       </view>
       <text className="RoomRow-chevron">›</text>

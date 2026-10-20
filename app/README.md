@@ -54,12 +54,14 @@ The app talks to the gRPC server on the Pi with [Connect](https://connectrpc.com
 
 | File | What |
 | --- | --- |
-| `client.ts` | `restWell`: the client to call RPCs from the contract, e.g. `await restWell.listRooms({})` |
-| `useRoomLive.ts` | `useRoomLive(roomId)`: live readings and open alarms of a room |
+| `client.ts` | `restWell`: the client for normal (unary) RPCs from the contract, e.g. `await restWell.listRooms({})` |
+| `watchRoom.ts` | `watchRoom(roomId, signal)`: the live stream `WatchRoom`, read without Connect's stream layer (see below) |
+| `envelope.ts` | Splits the stream into Connect messages (envelopes), with tests |
+| `useRoomLive.ts` | `useRoomLive(roomId)`: live readings and open alarms of a room; reconnects after 3 s if the connection drops |
 | `roomState.ts` | How a message from the live stream updates what the app knows |
 | `config.ts` | The server address (`PUBLIC_PI_URL`) |
 | `useRooms.ts` | `useRooms()`: all rooms with their number of open alarms, fetched once |
-| `useLatestReading.ts` | `useLatestReading(roomId)`: the latest reading, fetched once (until `WatchRoom` works in Lynx) |
+| `useLatestReading.ts` | `useLatestReading(roomId)`: the latest reading, fetched once when a screen opens (until the first live message arrives) |
 | `acknowledgeAlarm.ts` | `acknowledgeAlarm(alarmId, initials)`: marks an alarm as seen |
 | `errors.ts` | Readable error messages for on screen |
 | `polyfills.ts` | `TextEncoder`/`TextDecoder` for Lynx. Must be the **first import** of every entry (`src/index.tsx`, `src/grpc-test/index.tsx`) |
@@ -87,7 +89,16 @@ The types (`Reading`, `Alarm`, ...) are generated from `/proto` into `src/genera
 - whether a normal RPC works (`ListRooms`)
 - whether live data comes in (`WatchRoom`): a new reading every second with `npm run dev` in `/pi`
 
+### Live data in Lynx
+
 Live data needs `enableFetchAPIStandardStreaming` (set in `lynx.config.ts`), which is experimental and requires Lynx 3.7 or newer. Always test on a real phone: the web preview uses the browser's `fetch`, where streaming always works.
+
+What we measured in Lynx Explorer on an iPhone, and why `watchRoom.ts` exists:
+
+- `fetch` streams fine: chunks arrive as soon as the Pi sends them, as `ArrayBuffer` (not `Uint8Array`).
+- **Do not** pass `lynxExtension: { useStreaming: true }`: then no chunks arrive at all.
+- `response.body` can be read only once; a second read throws "body used".
+- `new ReadableStream({ pull })` never calls `pull`. Connect's stream layer relies on it, so `restWell.watchRoom(...)` hangs. That is why `watchRoom.ts` reads the stream itself and decodes the messages with the generated types.
 
 ## Scripts
 
