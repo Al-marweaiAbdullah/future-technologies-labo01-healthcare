@@ -113,5 +113,4 @@ What we measured in Lynx Explorer on an iPhone, and why `watchRoom.ts` exists:
 | `npm run build`   | Builds the app for production |
 | `npm run generate` | Generates the gRPC types from `/proto` into `src/generated/` |
 | `npm test`        | Runs the tests (Rstest) |
-
-Translated with DeepL.com (free version)
+| `npm run typecheck` | Checks the types of the app and the config files (`tsc -b`, follows the references in `tsconfig.json`) |
