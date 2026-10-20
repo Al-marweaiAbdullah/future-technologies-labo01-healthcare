@@ -12,6 +12,7 @@ pi/
     alarms/      ← backend: beslissen wanneer er een alarm komt
     grpc/        ← proto/gRPC: server die het contract uit /proto uitvoert
     main.ts      ← start alles en koppelt de onderdelen aan elkaar
+  deploy/        ← RestWell als service op de Pi laten draaien (zie "Op de Pi laten draaien")
 ```
 
 Elke map heeft een eigen README met wat ze doet en wat ze aanbiedt.
@@ -37,6 +38,29 @@ De gegenereerde code staat niet in git. Draai `npm run generate` na een clone en
 Node voert de `.ts`-bestanden rechtstreeks uit, er is geen build-stap. Gebruik daarom alleen TypeScript-syntax die Node kan weglaten (geen `enum` of `namespace`), en importeer met de extensie: `import { x } from "./x.ts"`.
 
 Een library toevoegen doe je met `npm install <naam>`: de versie wordt automatisch exact gepind.
+
+## Op de Pi laten draaien (service)
+
+Voor de demo draait RestWell als systemd-service: het start vanzelf als de Pi opstart en herstart na een crash. Je hoeft geen terminal open te houden.
+
+Eenmalig installeren, als de gewone gebruiker (het script vraagt zelf om het sudo-wachtwoord):
+
+```bash
+npm install                        # in pi/, als dat nog niet gebeurd is
+bash deploy/install-service.sh     # schrijft /etc/systemd/system/restwell.service en start RestWell
+```
+
+Het script vult het pad van de repo, de gebruiker en nvm in `deploy/restwell.service` in. Node start via `nvm-exec`, dat de versie uit `.nvmrc` kiest.
+
+| Wat                                | Commando                                |
+| ---------------------------------- | --------------------------------------- |
+| Draait het?                        | `systemctl status restwell`             |
+| Logs volgen                        | `journalctl -u restwell -f`             |
+| Herstarten (bv. na een `git pull`) | `sudo systemctl restart restwell`       |
+| Tijdelijk stoppen                  | `sudo systemctl stop restwell`          |
+| Niet meer automatisch starten      | `sudo systemctl disable --now restwell` |
+
+**Stop de service voor je `npm run dev` of `npm run hardware:check` start.** Anders gebruiken twee programma's tegelijk de sensoren en poort 8080.
 
 ## Hoe de onderdelen samenwerken
 

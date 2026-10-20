@@ -1,0 +1,23 @@
+# systemd-service voor RestWell: start main.ts bij het opstarten van de Pi en herstart na een crash.
+# Niet rechtstreeks gebruiken: install-service.sh vult de __PLAATSHOUDERS__ in.
+
+[Unit]
+Description=RestWell: sensoren, alarmen en gRPC-server
+# De app moet de Pi via het netwerk kunnen bereiken.
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=__USER__
+WorkingDirectory=__PI_DIR__
+# nvm-exec kiest de Node-versie uit .nvmrc in WorkingDirectory.
+ExecStart=__NVM_DIR__/nvm-exec node src/main.ts
+Restart=on-failure
+# Bv. als de I²C-bus bij het opstarten nog niet klaar is: na 5 s opnieuw proberen.
+RestartSec=5
+# main.ts zet bij SIGTERM de LED en de buzzer uit en maakt het scherm leeg.
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target
