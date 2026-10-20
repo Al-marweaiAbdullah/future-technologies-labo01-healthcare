@@ -1,6 +1,7 @@
 // Eenvoudige staafgrafiek met gewone views: Lynx heeft geen grafiekbibliotheek.
 // Elke staaf is het gemiddelde van één tijdvak; een leeg tijdvak blijft open.
 // Met een drempel toont de grafiek de comfortzone als lijnen, en staven erbuiten in het rood.
+// Een strook onder de staven toont in welke tijdvakken er een alarm actief was.
 import type { Threshold } from '../generated/restwell/v1/restwell_pb.js';
 import type { Bucket } from '../format/history.js';
 import { formatTime } from '../format/measurements.js';
@@ -15,6 +16,8 @@ type HistoryChartProps = {
   toMs: number;
   formatValue: (value: number) => string;
   threshold?: Threshold;
+  /** Per tijdvak (zelfde volgorde als `buckets`) of er een alarm actief was. */
+  alarmFlags?: boolean[];
 };
 
 type ValueRange = { min: number; max: number };
@@ -50,6 +53,7 @@ export function HistoryChart({
   toMs,
   formatValue,
   threshold,
+  alarmFlags = [],
 }: HistoryChartProps) {
   const range = valueRange(buckets, threshold);
   if (!range) {
@@ -90,6 +94,20 @@ export function HistoryChart({
           ))}
         </view>
       </view>
+      {alarmFlags.some(Boolean) && (
+        <view className="Chart-alarms">
+          {buckets.map((bucket, index) => (
+            <view
+              key={bucket.startMs}
+              className={
+                alarmFlags[index]
+                  ? 'Chart-alarm Chart-alarm--active'
+                  : 'Chart-alarm'
+              }
+            />
+          ))}
+        </view>
+      )}
       <view className="Chart-times">
         <text className="Chart-label">
           {formatTime(BigInt(Math.round(fromMs)))}

@@ -13,6 +13,10 @@ const CONTRACT_METRICS: Record<ChartMetric, Metric> = {
   light: Metric.LIGHT,
 };
 
+export function toContractMetric(metric: ChartMetric): Metric {
+  return CONTRACT_METRICS[metric];
+}
+
 export function thresholdFor(
   thresholds: Threshold[],
   metric: ChartMetric,
