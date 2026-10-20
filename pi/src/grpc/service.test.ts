@@ -12,6 +12,7 @@ import {
   IN_MEMORY,
   createAlarm,
   openDatabase,
+  resolveAlarm,
   saveMeasurement,
   seedDefaults,
   type Db,
@@ -138,4 +139,82 @@ test("WatchRoom stuurt geen gebeurtenissen van een andere kamer", async () => {
   assert.equal(next?.roomId, DEFAULT_ROOM.id);
   assert.equal(next?.timestampMs, 3000n);
   abort.abort();
+});
+
+function tooWarmAlarm(): number {
+  return createAlarm(db, {
+    room_id: DEFAULT_ROOM.id,
+    sensor: "temperature",
+    value: 26,
+    reason: "Te warm: 26 °C",
+    started_at_ms: 1000,
+  }).id;
+}
+
+test("AcknowledgeAlarm zet een actief alarm op gezien en geeft het terug", async () => {
+  const alarmId = tooWarmAlarm();
+
+  const { alarm } = await client.acknowledgeAlarm({
+    alarmId: BigInt(alarmId),
+    acknowledgedBy: " VP ",
+  });
+
+  assert.equal(alarm?.status, AlarmStatus.ACKNOWLEDGED);
+  assert.equal(alarm?.acknowledgedBy, "VP");
+  assert.notEqual(alarm?.acknowledgedAtMs, undefined);
+  const [open] = (await client.listOpenAlarms({ roomId: DEFAULT_ROOM.id })).alarms;
+  assert.equal(open?.status, AlarmStatus.ACKNOWLEDGED);
+});
+
+test("AcknowledgeAlarm meldt de wijziging aan WatchRoom", async () => {
+  const alarmId = tooWarmAlarm();
+  saveMeasurement(db, fakeMeasurement(1000));
+  const abort = new AbortController();
+  const stream = client.watchRoom({ roomId: DEFAULT_ROOM.id }, { signal: abort.signal });
+  const iterator = stream[Symbol.asyncIterator]();
+  // De eerste meting bewijst dat de stroom al luistert.
+  assert.equal((await iterator.next()).value?.event.case, "reading");
+
+  await client.acknowledgeAlarm({ alarmId: BigInt(alarmId), acknowledgedBy: "VP" });
+
+  const event = (await iterator.next()).value?.event;
+  assert.equal(event?.case, "alarm");
+  assert.equal(event?.case === "alarm" ? event.value.status : undefined, AlarmStatus.ACKNOWLEDGED);
+  abort.abort();
+});
+
+test("AcknowledgeAlarm twee keer: de eerste bevestiging blijft staan", async () => {
+  const alarmId = tooWarmAlarm();
+  const first = await client.acknowledgeAlarm({ alarmId: BigInt(alarmId), acknowledgedBy: "VP" });
+
+  const second = await client.acknowledgeAlarm({ alarmId: BigInt(alarmId), acknowledgedBy: "HV" });
+
+  assert.equal(second.alarm?.acknowledgedBy, "VP");
+  assert.equal(second.alarm?.acknowledgedAtMs, first.alarm?.acknowledgedAtMs);
+});
+
+test("AcknowledgeAlarm: onbekend alarm geeft NOT_FOUND", async () => {
+  await assertConnectCode(
+    client.acknowledgeAlarm({ alarmId: 999n, acknowledgedBy: "VP" }),
+    Code.NotFound,
+  );
+});
+
+test("AcknowledgeAlarm: opgelost alarm geeft FAILED_PRECONDITION", async () => {
+  const alarmId = tooWarmAlarm();
+  resolveAlarm(db, alarmId, 2000);
+
+  await assertConnectCode(
+    client.acknowledgeAlarm({ alarmId: BigInt(alarmId), acknowledgedBy: "VP" }),
+    Code.FailedPrecondition,
+  );
+});
+
+test("AcknowledgeAlarm zonder acknowledged_by geeft INVALID_ARGUMENT", async () => {
+  const alarmId = tooWarmAlarm();
+
+  await assertConnectCode(
+    client.acknowledgeAlarm({ alarmId: BigInt(alarmId), acknowledgedBy: "  " }),
+    Code.InvalidArgument,
+  );
 });

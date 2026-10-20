@@ -13,6 +13,10 @@ export function createAlarm(db: Db, alarm: NewAlarm): AlarmRow {
     .get({ ...alarm, buzzer_after_sec: alarm.buzzer_after_sec ?? null }) as AlarmRow;
 }
 
+export function getAlarm(db: Db, alarmId: number): AlarmRow | undefined {
+  return db.prepare("SELECT * FROM alarms WHERE id = ?").get(alarmId) as AlarmRow | undefined;
+}
+
 export function listOpenAlarms(db: Db, roomId: string): AlarmRow[] {
   return db
     .prepare(

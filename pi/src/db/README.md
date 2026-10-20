@@ -24,6 +24,7 @@ import { openDatabase, seedDefaults, saveMeasurement } from "./db/index.ts";
 | `createAlarm(db, alarm)`                     | Nieuw alarm met status `active`                                                           |
 | `listOpenAlarms(db, roomId)`                 | Alarmen die nog niet opgelost zijn (`active` of `acknowledged`)                           |
 | `getOpenAlarmForSensor(db, roomId, sensor)`  | Het open alarm van één sensor, of `undefined`                                             |
+| `getAlarm(db, alarmId)`                      | Eén alarm, ongeacht de status, of `undefined`                                             |
 | `acknowledgeAlarm(db, alarmId, by, nowMs)`   | `active` → `acknowledged`. Geeft het alarm terug, of `undefined`                          |
 | `resolveAlarm(db, alarmId, nowMs)`           | Open alarm → `resolved`. Geeft `false` als dat niet kon                                   |
 

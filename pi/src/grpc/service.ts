@@ -1,6 +1,8 @@
 // Voert RestWellService uit het contract uit, met de gegevens uit db/.
 import { Code, ConnectError, type ServiceImpl } from "@connectrpc/connect";
 import {
+  acknowledgeAlarm,
+  getAlarm,
   getLatestMeasurement,
   getRoom,
   listMeasurements,
@@ -9,7 +11,7 @@ import {
   type Db,
 } from "../db/index.ts";
 import { RestWellService } from "./generated/restwell/v1/restwell_pb.js";
-import { subscribe } from "./events.ts";
+import { publishAlarm, subscribe } from "./events.ts";
 import { toAlarm, toReading, toRoom } from "./mapping.ts";
 
 function assertRoomExists(db: Db, roomId: string): void {
@@ -55,10 +57,33 @@ export function createRestWellService(db: Db, log: Log): ServiceImpl<typeof Rest
       return { alarms: listOpenAlarms(db, req.roomId).map(toAlarm) };
     },
 
-    acknowledgeAlarm() {
-      // db/ heeft nog geen functie om één alarm op te halen; zonder die kan dit het
-      // bijgewerkte alarm niet teruggeven (gemeld aan de backend).
-      throw new ConnectError("AcknowledgeAlarm is nog niet beschikbaar", Code.Unimplemented);
+    acknowledgeAlarm(req) {
+      const acknowledgedBy = req.acknowledgedBy.trim();
+      if (!acknowledgedBy) {
+        throw new ConnectError(
+          "acknowledged_by is verplicht (initialen of rol)",
+          Code.InvalidArgument,
+        );
+      }
+      const alarmId = Number(req.alarmId);
+
+      const acknowledged = acknowledgeAlarm(db, alarmId, acknowledgedBy, Date.now());
+      if (acknowledged) {
+        // Andere telefoons zien meteen dat het alarm gezien is. De buzzer stopt bij de
+        // volgende meting in main.ts, omdat decideRoomOutput alleen actieve alarmen laat zoemen.
+        publishAlarm(acknowledged);
+        return { alarm: toAlarm(acknowledged) };
+      }
+
+      const existing = getAlarm(db, alarmId);
+      if (!existing) {
+        throw new ConnectError(`alarm ${alarmId} bestaat niet`, Code.NotFound);
+      }
+      if (existing.status === "resolved") {
+        throw new ConnectError(`alarm ${alarmId} is al opgelost`, Code.FailedPrecondition);
+      }
+      // Al bevestigd, bv. door een collega die tegelijk op "gezien" tikte: niets veranderen.
+      return { alarm: toAlarm(existing) };
     },
   };
 }
