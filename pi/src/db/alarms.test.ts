@@ -65,9 +65,12 @@ test("resolveAlarm sluit een open alarm af", () => {
   const alarm = createAlarm(db, tooWarmAlarm());
   acknowledgeAlarm(db, alarm.id, "VP", ACKNOWLEDGED_AT_MS);
 
-  assert.equal(resolveAlarm(db, alarm.id, RESOLVED_AT_MS), true);
+  const resolved = resolveAlarm(db, alarm.id, RESOLVED_AT_MS);
+  assert.equal(resolved?.status, "resolved");
+  assert.equal(resolved?.resolved_at_ms, RESOLVED_AT_MS);
+  assert.equal(resolved?.acknowledged_by, "VP");
   assert.deepEqual(listOpenAlarms(db, DEFAULT_ROOM.id), []);
-  assert.equal(resolveAlarm(db, alarm.id, RESOLVED_AT_MS), false);
+  assert.equal(resolveAlarm(db, alarm.id, RESOLVED_AT_MS), undefined);
 });
 
 test("een opgelost alarm kan niet meer bevestigd worden", () => {
