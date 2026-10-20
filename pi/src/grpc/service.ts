@@ -6,6 +6,7 @@ import {
   getLatestMeasurement,
   getRoom,
   listMeasurements,
+  listAlarmsSince,
   listAlarmsToShow,
   listRooms,
   listThresholds,
@@ -101,6 +102,11 @@ export function createRestWellService(db: Db, log: Log): ServiceImpl<typeof Rest
       assertRoomExists(db, req.roomId);
       // Ook opgeloste alarmen die nog niemand zag: geen enkel alarm mag ongezien verdwijnen.
       return { alarms: listAlarmsToShow(db, req.roomId).map(toAlarm) };
+    },
+
+    listAlarms(req) {
+      assertRoomExists(db, req.roomId);
+      return { alarms: listAlarmsSince(db, req.roomId, Number(req.sinceMs)).map(toAlarm) };
     },
 
     acknowledgeAlarm(req) {

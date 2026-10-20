@@ -183,6 +183,21 @@
   margin-top: 4px;
 }
 
+.AlarmHistoryRow {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.AlarmHistoryRow-title {
+  font-size: 15px;
+  color: var(--color-text);
+}
+
+.AlarmHistoryRow-status {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
 .AlarmCard-actions {
   display: flex;
   flex-direction: row;

@@ -23,6 +23,7 @@ De map volgt de package-naam (`restwell.v1`). Een brekende wijziging komt later 
 | `WatchRoom` | **live** (server-streaming) | Elke nieuwe meting en elke alarmwijziging van een kamer |
 | `ListReadings` | gewoon | Metingen vanaf een tijdstip, voor grafieken |
 | `ListOpenAlarms` | gewoon | Alarmen die aandacht vragen: nog niet opgelost, of opgelost maar nog niet gezien |
+| `ListAlarms` | gewoon | Alarmgeschiedenis: elk alarm dat sinds een tijdstip liep, ook opgeloste en geziene, nieuwste eerst |
 | `AcknowledgeAlarm` | gewoon | "Ik heb het gezien": stopt de buzzer |
 
 Een alarm doorloopt: `ACTIVE` → `ACKNOWLEDGED` (iemand duidde "gezien" aan) → `RESOLVED` (waarde weer normaal).

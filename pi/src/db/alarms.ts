@@ -42,6 +42,19 @@ export function listAlarmsToShow(db: Db, roomId: string): AlarmRow[] {
     .all(roomId) as AlarmRow[];
 }
 
+// Alarmgeschiedenis: elk alarm dat sinds sinceMs liep, in elke status, nieuwste eerst.
+// Ook een alarm dat vroeger begon, als het toen nog open was of pas later opgelost werd.
+export function listAlarmsSince(db: Db, roomId: string, sinceMs: number): AlarmRow[] {
+  return db
+    .prepare(
+      `SELECT * FROM alarms
+       WHERE room_id = :room_id
+         AND (started_at_ms >= :since_ms OR resolved_at_ms IS NULL OR resolved_at_ms >= :since_ms)
+       ORDER BY started_at_ms DESC, id DESC`,
+    )
+    .all({ room_id: roomId, since_ms: sinceMs }) as AlarmRow[];
+}
+
 export function getOpenAlarmForSensor(
   db: Db,
   roomId: string,

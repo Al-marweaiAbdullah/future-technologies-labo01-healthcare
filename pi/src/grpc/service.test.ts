@@ -212,6 +212,26 @@ test("ListOpenAlarms toont een opgelost alarm tot iemand het zag", async () => {
   assert.deepEqual((await client.listOpenAlarms({ roomId: DEFAULT_ROOM.id })).alarms, []);
 });
 
+test("ListAlarms houdt een opgelost en gezien alarm in de geschiedenis", async () => {
+  const alarmId = tooWarmAlarm();
+  resolveAlarm(db, alarmId, 2000);
+  await client.acknowledgeAlarm({ alarmId: BigInt(alarmId), acknowledgedBy: "VP" });
+
+  const { alarms } = await client.listAlarms({ roomId: DEFAULT_ROOM.id, sinceMs: 0n });
+  assert.deepEqual(
+    alarms.map((alarm) => [alarm.id, alarm.status, alarm.acknowledgedBy]),
+    [[BigInt(alarmId), AlarmStatus.RESOLVED, "VP"]],
+  );
+  assert.deepEqual(
+    (await client.listAlarms({ roomId: DEFAULT_ROOM.id, sinceMs: 3000n })).alarms,
+    [],
+  );
+});
+
+test("ListAlarms: onbekende kamer geeft NOT_FOUND", async () => {
+  await assertConnectCode(client.listAlarms({ roomId: "unknown", sinceMs: 0n }), Code.NotFound);
+});
+
 test("AcknowledgeAlarm markeert een opgelost alarm dat niemand zag als gezien", async () => {
   const alarmId = tooWarmAlarm();
   resolveAlarm(db, alarmId, 2000);

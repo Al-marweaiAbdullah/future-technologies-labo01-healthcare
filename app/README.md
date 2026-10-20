@@ -43,8 +43,8 @@ The terminal will display a QR code and a bundle URL.
 | --- | --- |
 | `src/App.tsx` | Switches between the screens; shows the prototype banner on every screen |
 | `src/screens/` | `RoomListScreen` (all rooms), `RoomDetailScreen` (readings, chart and alarms of one room) and `ThresholdScreen` (adjust the thresholds via `UpdateThreshold`) |
-| `src/components/` | Small building blocks: `RoomRow`, `MeasurementRow`, `AlarmCard`, `PrototypeBanner`, `ThresholdEditor`, `HistorySection` and `HistoryChart` (bar chart built from views: Lynx has no chart library) |
-| `src/format/` | Turns values from the contract into text (`21,5 °C`, `1 alarm`, ...) readings into chart buckets and min/avg/max (`history.ts`), compares values with the comfort zone (`thresholds.ts`), groups alarms per sensor (`alarmGroups.ts`: the Pi creates a new alarm each time a value crosses a limit again, the app shows one card per sensor) and validates threshold input (`thresholdInput.ts`), with tests |
+| `src/components/` | Small building blocks: `RoomRow`, `MeasurementRow`, `AlarmCard`, `PrototypeBanner`, `ThresholdEditor`, `HistorySection`, `HistoryChart` (bar chart built from views: Lynx has no chart library) and `AlarmHistorySection` ("Recente alarmen": every alarm of the last 24 hours, also resolved and seen ones) |
+| `src/format/` | Turns values from the contract into text (`21,5 °C`, `1 alarm`, ...) readings into chart buckets and min/avg/max (`history.ts`), compares values with the comfort zone (`thresholds.ts`), groups alarms per sensor (`alarmGroups.ts`: the Pi creates a new alarm each time a value crosses a limit again, the app shows one card per sensor), validates threshold input (`thresholdInput.ts`) and formats the alarm history (`alarmHistory.ts`), with tests |
 
 **Tap handlers that call the Pi must start with `'background only';`.** ReactLynx also runs component code on the main thread, where `fetch` does not exist; the directive removes the handler there. Network code in `useEffect` needs nothing: effects only run on the background thread.
 
@@ -60,6 +60,7 @@ The app talks to the gRPC server on the Pi with [Connect](https://connectrpc.com
 | `updateThreshold.ts` | `updateThreshold(threshold)`: saves a changed threshold on the Pi |
 | `useThresholds.ts` | `useThresholds(roomId)`: the thresholds (comfort zone) of a room via `ListThresholds`, fetched once |
 | `useReadingHistory.ts` | `useReadingHistory(roomId, windowMs, liveReading)`: readings of a period via `ListReadings`, then extended with live readings |
+| `useAlarmHistory.ts` | `useAlarmHistory(roomId, windowMs, refreshKey)`: alarm history via `ListAlarms`, fetched again only when a live alarm changes (no polling) |
 | `useRoomLive.ts` | `useRoomLive(roomId)`: live readings and open alarms of a room; reconnects after 3 s if the connection drops |
 | `roomState.ts` | How a message from the live stream updates what the app knows |
 | `config.ts` | The server address (`PUBLIC_PI_URL`) |
