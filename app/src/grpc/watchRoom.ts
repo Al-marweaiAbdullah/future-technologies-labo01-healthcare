@@ -10,8 +10,12 @@ import {
 } from '../generated/restwell/v1/restwell_pb.js';
 import { PI_URL } from './config.js';
 import { END_STREAM_FLAG, EnvelopeParser, encodeEnvelope } from './envelope.js';
+import { readWithTimeout } from './readWithTimeout.js';
 
 const WATCH_ROOM_URL = `${PI_URL}/${RestWellService.typeName}/${RestWellService.method.watchRoom.name}`;
+
+// De Pi stuurt elke 2 s een meting; zo lang niets horen betekent dat de verbinding weg is.
+const STREAM_TIMEOUT_MS = 10_000;
 
 const CONNECT_HEADERS = {
   'Content-Type': 'application/connect+proto',
@@ -42,7 +46,8 @@ function throwIfEndStreamError(data: Uint8Array): void {
 
 /**
  * Luistert live naar een kamer: eerst de laatste meting, daarna elke nieuwe meting en
- * alarmwijziging. Stopt als `signal` afgebroken wordt of de Pi de stroom sluit.
+ * alarmwijziging. Stopt als `signal` afgebroken wordt of de Pi de stroom sluit, en gooit
+ * een fout als er STREAM_TIMEOUT_MS lang niets binnenkomt.
  */
 export async function* watchRoom(
   roomId: string,
@@ -77,7 +82,7 @@ export async function* watchRoom(
   const parser = new EnvelopeParser();
   try {
     while (!signal.aborted) {
-      const { done, value } = await reader.read();
+      const { done, value } = await readWithTimeout(reader, STREAM_TIMEOUT_MS);
       if (done) return;
       for (const envelope of parser.push(toUint8Array(value))) {
         if (envelope.flags & END_STREAM_FLAG) {
@@ -89,5 +94,7 @@ export async function* watchRoom(
     }
   } finally {
     signal.removeEventListener('abort', cancel);
+    // Sluit ook de verbinding na een time-out of fout; na het einde van de stroom kan dat geen kwaad.
+    cancel();
   }
 }

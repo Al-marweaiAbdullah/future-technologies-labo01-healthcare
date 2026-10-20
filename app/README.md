@@ -57,10 +57,11 @@ The app talks to the gRPC server on the Pi with [Connect](https://connectrpc.com
 | `client.ts` | `restWell`: the client for normal (unary) RPCs from the contract, e.g. `await restWell.listRooms({})` |
 | `watchRoom.ts` | `watchRoom(roomId, signal)`: the live stream `WatchRoom`, read without Connect's stream layer (see below) |
 | `envelope.ts` | Splits the stream into Connect messages (envelopes), with tests |
+| `readWithTimeout.ts` | Reads the next chunk of the stream, or fails after a timeout. `watchRoom` uses it to fail after 10 s without a message (the Pi sends one every 2 s), so a silently dropped wifi connection is noticed |
 | `updateThreshold.ts` | `updateThreshold(threshold)`: saves a changed threshold on the Pi |
 | `useThresholds.ts` | `useThresholds(roomId)`: the thresholds (comfort zone) of a room via `ListThresholds`, fetched once |
 | `useReadingHistory.ts` | `useReadingHistory(roomId, windowMs, liveReading)`: readings of a period via `ListReadings`, then extended with live readings |
-| `useRoomLive.ts` | `useRoomLive(roomId)`: live readings and open alarms of a room; reconnects after 3 s if the connection drops |
+| `useRoomLive.ts` | `useRoomLive(roomId)`: live readings and open alarms of a room; reconnects after 3 s if the connection drops or stays silent for 10 s |
 | `roomState.ts` | How a message from the live stream updates what the app knows |
 | `config.ts` | The server address (`PUBLIC_PI_URL`) |
 | `useRooms.ts` | `useRooms()`: all rooms with their number of open alarms, fetched once |
