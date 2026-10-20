@@ -47,6 +47,22 @@ Een gewone call met curl:
 curl -X POST http://localhost:8080/restwell.v1.RestWellService/ListRooms -H "Content-Type: application/json" -d "{}"
 ```
 
+## AcknowledgeAlarm
+
+"Ik heb het gezien": zet een actief alarm op `ACKNOWLEDGED` en meldt het via `WatchRoom` aan alle telefoons. De buzzer stopt bij de volgende meting (binnen ±2 s); de LED en de tekst op de OLED blijven tot de waarde weer normaal is.
+
+| Situatie                            | Antwoord                                                                  |
+| ----------------------------------- | ------------------------------------------------------------------------- |
+| Actief alarm                        | Het bijgewerkte alarm                                                     |
+| Al bevestigd (bv. door een collega) | Het alarm, ongewijzigd: de eerste bevestiging blijft staan                |
+| Al opgelost                         | `FAILED_PRECONDITION`                                                     |
+| Onbekend alarm                      | `NOT_FOUND`                                                               |
+| Lege `acknowledged_by`              | `INVALID_ARGUMENT`. Vul initialen of een rol in, nooit een volledige naam |
+
+```bash
+curl -X POST http://localhost:8080/restwell.v1.RestWellService/AcknowledgeAlarm -H "Content-Type: application/json" -d '{"alarmId":"1","acknowledgedBy":"VP"}'
+```
+
 ## Afspraken
 
 - Geen businesslogica hier: deze map vertaalt alleen tussen het contract en de rest van de code.

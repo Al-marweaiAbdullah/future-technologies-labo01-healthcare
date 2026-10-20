@@ -4,6 +4,7 @@ import { IN_MEMORY, openDatabase, type Db } from "./connection.ts";
 import { DEFAULT_ROOM, seedDefaults } from "./seed.ts";
 import {
   acknowledgeAlarm,
+  getAlarm,
   createAlarm,
   getOpenAlarmForSensor,
   listOpenAlarms,
@@ -59,6 +60,14 @@ test("acknowledgeAlarm geeft undefined voor een al bevestigd of onbekend alarm",
 
   assert.equal(acknowledgeAlarm(db, alarm.id, "VP", ACKNOWLEDGED_AT_MS), undefined);
   assert.equal(acknowledgeAlarm(db, 999, "VP", ACKNOWLEDGED_AT_MS), undefined);
+});
+
+test("getAlarm geeft één alarm, ook een opgelost, of undefined", () => {
+  const alarm = createAlarm(db, tooWarmAlarm());
+  resolveAlarm(db, alarm.id, RESOLVED_AT_MS);
+
+  assert.equal(getAlarm(db, alarm.id)?.status, "resolved");
+  assert.equal(getAlarm(db, 999), undefined);
 });
 
 test("resolveAlarm sluit een open alarm af", () => {
