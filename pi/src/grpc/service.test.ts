@@ -45,7 +45,10 @@ beforeEach(() => {
   seedDefaults(db);
   // Praat met de service in het geheugen, zonder netwerk.
   const transport = createRouterTransport((router) => {
-    router.service(RestWellService, createRestWellService(db));
+    router.service(
+      RestWellService,
+      createRestWellService(db, () => {}),
+    );
   });
   client = createClient(RestWellService, transport);
 });
