@@ -17,7 +17,9 @@ import {
 import type { I2cLock } from "./i2c-lock.ts";
 import type { TemperatureHumidity } from "./types.ts";
 
-// Tijd die de firmware nodig heeft voor het antwoord klaarstaat.
+// Tijd die de firmware nodig heeft om een commando te verwerken of een antwoord klaar te zetten.
+// Ook na een schrijfcommando wachten: de firmware heeft één buffer, en een volgend commando
+// dat te vroeg komt, overschrijft het vorige (bv. LED aan, meteen gevolgd door buzzer uit).
 const RESPONSE_DELAY_MS = 50;
 const DHT_RESPONSE_DELAY_MS = 600;
 
@@ -34,6 +36,13 @@ export function createGrovePi(bus: PromisifiedBus, address: number, lock: I2cLoc
     await bus.writeI2cBlock(address, COMMAND_REGISTER, command.length, command);
   }
 
+  async function command(bytes: Buffer): Promise<void> {
+    await lock(async () => {
+      await send(bytes);
+      await sleep(RESPONSE_DELAY_MS);
+    });
+  }
+
   async function request(command: Buffer, delayMs: number, responseBytes: number): Promise<Buffer> {
     return lock(async () => {
       await send(command);
@@ -46,14 +55,14 @@ export function createGrovePi(bus: PromisifiedBus, address: number, lock: I2cLoc
 
   return {
     async setPinMode(pin, mode) {
-      await lock(() => send(encodeCommand(COMMAND.pinMode, pin, PIN_MODE[mode])));
+      await command(encodeCommand(COMMAND.pinMode, pin, PIN_MODE[mode]));
     },
     async digitalRead(pin) {
       const command = encodeCommand(COMMAND.digitalRead, pin);
       return decodeDigital(await request(command, RESPONSE_DELAY_MS, DIGITAL_RESPONSE_BYTES));
     },
     async digitalWrite(pin, on) {
-      await lock(() => send(encodeCommand(COMMAND.digitalWrite, pin, on ? 1 : 0)));
+      await command(encodeCommand(COMMAND.digitalWrite, pin, on ? 1 : 0));
     },
     async analogRead(pin) {
       const command = encodeCommand(COMMAND.analogRead, pin);

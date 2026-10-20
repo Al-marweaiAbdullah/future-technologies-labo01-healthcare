@@ -28,6 +28,8 @@ export const OLED_I2C_ADDRESS = 0x3c;
 // Poortnummers zoals ze op de GrovePi staan: D2 = 2, A0 = 0, ...
 export const TEMPERATURE_HUMIDITY_PORT = 2; // D2, DHT22 (witte sensor)
 export const LED_PORT = 3; // D3
+// Onze Grove Variable Color LED brandt als de pin laag is en is uit als ze hoog is (getest).
+export const LED_ACTIVE_LOW = true;
 export const MOTION_PORT = 4; // D4
 export const BUZZER_PORT = 7; // D7
 export const LIGHT_PORT = 0; // A0

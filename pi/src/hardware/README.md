@@ -60,6 +60,8 @@ Er is geen geluidssensor; geluid is uit het hele project gehaald.
 
 Poortnummers en I²C-adressen staan in `src/config.ts`.
 
+De LED werkt omgekeerd: ze brandt als D3 laag is. `setLed(true)` houdt daar rekening mee (`LED_ACTIVE_LOW` in `src/config.ts`). Vervang je de LED door een gewone, zet die waarde dan op `false`.
+
 ## Voorbereiding op de Pi
 
 1. I²C aanzetten: `sudo raspi-config nonint do_i2c 0` (eenmalig, geen herstart nodig).
