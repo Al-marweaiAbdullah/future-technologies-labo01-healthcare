@@ -62,6 +62,14 @@ curl -X POST http://localhost:8080/restwell.v1.RestWellService/ListRooms -H "Con
 npx buf curl --schema ../proto --data '{"threshold":{"roomId":"room1","metric":"METRIC_TEMPERATURE","minValue":18,"maxValue":26}}' http://localhost:8080/restwell.v1.RestWellService/UpdateThreshold
 ```
 
+## Alarmgeschiedenis
+
+`ListOpenAlarms` geeft alleen wat nog aandacht vraagt. `ListAlarms` geeft de geschiedenis: elk alarm dat sinds `since_ms` liep, ook opgeloste en geziene, nieuwste eerst. Een alarm dat vroeger begon, telt mee als het sindsdien nog open was of pas opgelost werd.
+
+```bash
+npx buf curl --schema ../proto --data '{"roomId":"room1","sinceMs":"0"}' http://localhost:8080/restwell.v1.RestWellService/ListAlarms
+```
+
 ## AcknowledgeAlarm
 
 "Ik heb het gezien": zet een actief alarm op `ACKNOWLEDGED` en meldt het via `WatchRoom` aan alle telefoons. De buzzer stopt bij de volgende meting (binnen ±2 s); de LED en de tekst op de OLED blijven tot de waarde weer normaal is.

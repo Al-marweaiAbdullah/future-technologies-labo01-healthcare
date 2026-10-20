@@ -7,6 +7,7 @@ import {
   createAlarm,
   getAlarm,
   getOpenAlarmForSensor,
+  listAlarmsSince,
   listAlarmsToShow,
   listOpenAlarms,
   resolveAlarm,
@@ -127,4 +128,28 @@ test("getOpenAlarmForSensor vindt alleen open alarmen van die sensor", () => {
 
   resolveAlarm(db, alarm.id, RESOLVED_AT_MS);
   assert.equal(getOpenAlarmForSensor(db, DEFAULT_ROOM.id, "temperature"), undefined);
+});
+
+test("listAlarmsSince geeft elk alarm dat sinds dat tijdstip liep, nieuwste eerst", () => {
+  const SINCE_MS = 5000;
+  const resolvedBefore = createAlarm(db, { ...tooWarmAlarm(), started_at_ms: 1000 });
+  resolveAlarm(db, resolvedBefore.id, 2000);
+  const resolvedAfter = createAlarm(db, { ...tooWarmAlarm(), started_at_ms: 3000 });
+  resolveAlarm(db, resolvedAfter.id, 6000);
+  const stillOpen = createAlarm(db, { ...tooWarmAlarm(), started_at_ms: 4000 });
+  const startedAfter = createAlarm(db, { ...tooWarmAlarm(), started_at_ms: 7000 });
+  acknowledgeAlarm(db, startedAfter.id, "VP", 7500);
+  resolveAlarm(db, startedAfter.id, 8000);
+
+  assert.deepEqual(
+    listAlarmsSince(db, DEFAULT_ROOM.id, SINCE_MS).map((alarm) => alarm.id),
+    [startedAfter.id, stillOpen.id, resolvedAfter.id],
+  );
+});
+
+test("listAlarmsSince geeft geen alarmen van een andere kamer", () => {
+  db.prepare("INSERT INTO rooms (id, name) VALUES (?, ?)").run("room2", "Kamer 2");
+  createAlarm(db, { ...tooWarmAlarm(), room_id: "room2" });
+
+  assert.deepEqual(listAlarmsSince(db, DEFAULT_ROOM.id, 0), []);
 });

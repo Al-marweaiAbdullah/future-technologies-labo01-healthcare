@@ -9,6 +9,7 @@ export {
   getAlarm,
   listOpenAlarms,
   listAlarmsToShow,
+  listAlarmsSince,
   getOpenAlarmForSensor,
   acknowledgeAlarm,
   resolveAlarm,

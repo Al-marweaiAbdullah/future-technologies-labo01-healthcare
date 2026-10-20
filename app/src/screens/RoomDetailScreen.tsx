@@ -2,6 +2,8 @@ import { useCallback, useState } from '@lynx-js/react';
 
 import type { Alarm, Room } from '../generated/restwell/v1/restwell_pb.js';
 import { AlarmCard } from '../components/AlarmCard.js';
+import { AlarmHistorySection } from '../components/AlarmHistorySection.js';
+import { alarmHistoryKey } from '../format/alarmHistory.js';
 import { HistorySection } from '../components/HistorySection.js';
 import { groupAlarmsByMetric } from '../format/alarmGroups.js';
 import { MeasurementRow } from '../components/MeasurementRow.js';
@@ -126,6 +128,12 @@ export function RoomDetailScreen({
           onAcknowledged={onAcknowledged}
         />
       ))}
+
+      <text className="Section-title">Recente alarmen</text>
+      <AlarmHistorySection
+        roomId={room.id}
+        refreshKey={alarmHistoryKey(alarms)}
+      />
     </scroll-view>
   );
 }
