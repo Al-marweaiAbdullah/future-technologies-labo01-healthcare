@@ -3,6 +3,7 @@ import { useCallback, useState } from '@lynx-js/react';
 import type { Alarm, Room } from '../generated/restwell/v1/restwell_pb.js';
 import { AlarmCard } from '../components/AlarmCard.js';
 import { HistorySection } from '../components/HistorySection.js';
+import { groupAlarmsByMetric } from '../format/alarmGroups.js';
 import { MeasurementRow } from '../components/MeasurementRow.js';
 import {
   formatHumidity,
@@ -11,13 +12,16 @@ import {
   formatTemperature,
   formatTime,
 } from '../format/measurements.js';
+import { formatRange, isOutside, thresholdFor } from '../format/thresholds.js';
 import { useLatestReading } from '../grpc/useLatestReading.js';
 import { needsAttention } from '../grpc/roomState.js';
 import { useRoomLive, type RoomLiveStatus } from '../grpc/useRoomLive.js';
+import { useThresholds } from '../grpc/useThresholds.js';
 
 type RoomDetailScreenProps = {
   room: Room;
   onBack: () => void;
+  onEditThresholds: () => void;
 };
 
 const LIVE_STATUS_LABELS: Record<RoomLiveStatus, string> = {
@@ -27,9 +31,17 @@ const LIVE_STATUS_LABELS: Record<RoomLiveStatus, string> = {
   error: 'Geen live-verbinding',
 };
 
-export function RoomDetailScreen({ room, onBack }: RoomDetailScreenProps) {
+export function RoomDetailScreen({
+  room,
+  onBack,
+  onEditThresholds,
+}: RoomDetailScreenProps) {
   const live = useRoomLive(room.id);
   const latestReading = useLatestReading(room.id);
+  const thresholds = useThresholds(room.id);
+  const temperatureThreshold = thresholdFor(thresholds, 'temperature');
+  const humidityThreshold = thresholdFor(thresholds, 'humidity');
+  const lightThreshold = thresholdFor(thresholds, 'light');
   // Alarmen die hier net als gezien gemarkeerd zijn, op id. Zonder live-stroom hoort de app
   // de wijziging niet van de Pi, dus tonen we het antwoord van AcknowledgeAlarm.
   const [acknowledgedById, setAcknowledgedById] = useState<
@@ -41,6 +53,7 @@ export function RoomDetailScreen({ room, onBack }: RoomDetailScreenProps) {
   const alarms = live.alarms
     .map((alarm) => acknowledgedById[String(alarm.id)] ?? alarm)
     .filter(needsAttention);
+  const alarmGroups = groupAlarmsByMetric(alarms);
 
   const onAcknowledged = useCallback((alarm: Alarm) => {
     setAcknowledgedById((current) => ({
@@ -69,20 +82,36 @@ export function RoomDetailScreen({ room, onBack }: RoomDetailScreenProps) {
         <MeasurementRow
           label="Temperatuur"
           value={formatTemperature(reading?.temperatureC)}
+          range={formatRange(temperatureThreshold, formatTemperature)}
+          isOutside={isOutside(reading?.temperatureC, temperatureThreshold)}
         />
         <MeasurementRow
           label="Luchtvochtigheid"
           value={formatHumidity(reading?.humidityPercent)}
+          range={formatRange(humidityThreshold, formatHumidity)}
+          isOutside={isOutside(reading?.humidityPercent, humidityThreshold)}
         />
-        <MeasurementRow label="Licht" value={formatLight(reading?.lightRaw)} />
+        <MeasurementRow
+          label="Licht"
+          value={formatLight(reading?.lightRaw)}
+          range={formatRange(lightThreshold, formatLight)}
+          isOutside={isOutside(reading?.lightRaw, lightThreshold)}
+        />
         <MeasurementRow
           label="Beweging"
           value={formatMotion(reading?.motionDetected)}
         />
+        <view className="LinkButton" bindtap={onEditThresholds}>
+          <text className="LinkButton-text">Drempels aanpassen ›</text>
+        </view>
       </view>
 
       <text className="Section-title">Verloop</text>
-      <HistorySection roomId={room.id} liveReading={live.reading} />
+      <HistorySection
+        roomId={room.id}
+        liveReading={live.reading}
+        thresholds={thresholds}
+      />
 
       <text className="Section-title">Alarmen</text>
       {alarms.length === 0 && (
@@ -90,10 +119,10 @@ export function RoomDetailScreen({ room, onBack }: RoomDetailScreenProps) {
           <text className="InfoText">Geen open alarmen.</text>
         </view>
       )}
-      {alarms.map((alarm) => (
+      {alarmGroups.map((group) => (
         <AlarmCard
-          key={String(alarm.id)}
-          alarm={alarm}
+          key={group.metric}
+          group={group}
           onAcknowledged={onAcknowledged}
         />
       ))}

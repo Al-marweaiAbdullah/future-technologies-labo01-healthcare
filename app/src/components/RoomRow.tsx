@@ -1,5 +1,6 @@
 import type { Room } from '../generated/restwell/v1/restwell_pb.js';
 import { formatAlarmCount, formatTemperature } from '../format/measurements.js';
+import { groupAlarmsByMetric } from '../format/alarmGroups.js';
 import { useRoomLive } from '../grpc/useRoomLive.js';
 
 type RoomRowProps = {
@@ -10,7 +11,9 @@ type RoomRowProps = {
 // Elke rij luistert live naar haar kamer, zodat een nieuw alarm meteen rood kleurt.
 export function RoomRow({ room, onPress }: RoomRowProps) {
   const live = useRoomLive(room.id);
-  const hasAlarm = live.alarms.length > 0;
+  // Tel per sensor, net zoals het detailscherm: herhaalde alarmen zijn één melding.
+  const alarmCount = groupAlarmsByMetric(live.alarms).length;
+  const hasAlarm = alarmCount > 0;
   const temperature = live.reading
     ? ` · ${formatTemperature(live.reading.temperatureC)}`
     : '';
@@ -25,7 +28,7 @@ export function RoomRow({ room, onPress }: RoomRowProps) {
             hasAlarm ? 'RoomRow-status RoomRow-status--alarm' : 'RoomRow-status'
           }
         >
-          {formatAlarmCount(live.alarms.length)}
+          {formatAlarmCount(alarmCount)}
           {temperature}
         </text>
       </view>

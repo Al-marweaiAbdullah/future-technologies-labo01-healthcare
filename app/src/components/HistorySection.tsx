@@ -1,8 +1,12 @@
-// Verloop van één sensor over een gekozen periode: grafiek en samenvatting (min/gem/max).
+// Verloop van één sensor over een gekozen periode: grafiek met comfortzone en samenvatting
+// (min/gem/max en hoe lang de waarde binnen de comfortzone bleef).
 // Loopt live mee met de metingen uit WatchRoom.
 import { useState } from '@lynx-js/react';
 
-import type { Reading } from '../generated/restwell/v1/restwell_pb.js';
+import type {
+  Reading,
+  Threshold,
+} from '../generated/restwell/v1/restwell_pb.js';
 import {
   CHART_METRICS,
   bucketReadings,
@@ -16,6 +20,11 @@ import {
   formatTemperature,
   formatTime,
 } from '../format/measurements.js';
+import {
+  formatRange,
+  fractionInside,
+  thresholdFor,
+} from '../format/thresholds.js';
 import { useReadingHistory } from '../grpc/useReadingHistory.js';
 import { HistoryChart } from './HistoryChart.js';
 
@@ -43,6 +52,7 @@ const METRIC_FORMATTERS: Record<ChartMetric, (value: number) => string> = {
 type HistorySectionProps = {
   roomId: string;
   liveReading?: Reading;
+  thresholds: Threshold[];
 };
 
 type ChipProps = {
@@ -66,7 +76,15 @@ function Chip({ label, isSelected, onPress }: ChipProps) {
   );
 }
 
-export function HistorySection({ roomId, liveReading }: HistorySectionProps) {
+function formatPercent(fraction: number): string {
+  return `${Math.round(fraction * 100)} %`;
+}
+
+export function HistorySection({
+  roomId,
+  liveReading,
+  thresholds,
+}: HistorySectionProps) {
   const [metric, setMetric] = useState<ChartMetric>('temperature');
   const [period, setPeriod] = useState<Period>(TEN_MINUTES);
   const history = useReadingHistory(roomId, period.windowMs, liveReading);
@@ -82,6 +100,8 @@ export function HistorySection({ roomId, liveReading }: HistorySectionProps) {
     BUCKET_COUNT,
   );
   const summary = summarize(history.readings, metric);
+  const threshold = thresholdFor(thresholds, metric);
+  const inside = fractionInside(history.readings, metric, threshold);
   const format = METRIC_FORMATTERS[metric];
   const show = (value?: number) =>
     value === undefined ? MISSING_VALUE : format(value);
@@ -121,6 +141,7 @@ export function HistorySection({ roomId, liveReading }: HistorySectionProps) {
           fromMs={fromMs}
           toMs={toMs}
           formatValue={format}
+          threshold={threshold}
         />
       )}
 
@@ -138,6 +159,11 @@ export function HistorySection({ roomId, liveReading }: HistorySectionProps) {
           <text className="Summary-value">{show(summary.max)}</text>
         </view>
       </view>
+      {threshold && inside !== undefined && (
+        <text className="InfoText">
+          {`${formatPercent(inside)} van de tijd binnen de comfortzone (${formatRange(threshold, format) ?? ''})`}
+        </text>
+      )}
       <text className="InfoText">
         {summary.count} metingen sinds {formatTime(BigInt(Math.round(fromMs)))}
       </text>
