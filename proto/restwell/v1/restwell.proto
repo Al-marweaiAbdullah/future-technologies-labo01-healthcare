@@ -7,6 +7,12 @@ service RestWellService {
   // Alle kamers.
   rpc ListRooms(ListRoomsRequest) returns (ListRoomsResponse);
 
+  // Drempels van een kamer, bv. om in de app de comfortzone te tonen.
+  rpc ListThresholds(ListThresholdsRequest) returns (ListThresholdsResponse);
+
+  // Past één drempel aan. Werkt meteen: de Pi leest de drempels bij elke meting.
+  rpc UpdateThreshold(UpdateThresholdRequest) returns (UpdateThresholdResponse);
+
   // Live: laatste meting, daarna elke nieuwe meting en alarmwijziging.
   rpc WatchRoom(WatchRoomRequest) returns (stream WatchRoomResponse);
 
@@ -73,12 +79,38 @@ message Alarm {
   optional int64 resolved_at_ms = 11;
 }
 
+// Eén rij uit de tabel `thresholds`. Leeg veld = geen grens aan die kant.
+message Threshold {
+  string room_id = 1;
+  Metric metric = 2;
+  optional double min_value = 3;        // in de eenheid van de sensor (zie Reading)
+  optional double max_value = 4;
+  optional int32 max_duration_sec = 5;  // pas alarm als de waarde zo lang buiten de grens blijft
+}
+
 // ---------- Requests en responses ----------
 
 message ListRoomsRequest {}
 
 message ListRoomsResponse {
   repeated Room rooms = 1;
+}
+
+message ListThresholdsRequest {
+  string room_id = 1;
+}
+
+message ListThresholdsResponse {
+  repeated Threshold thresholds = 1;
+}
+
+// De volledige nieuwe drempel: een leeg veld betekent "geen grens", niet "ongewijzigd".
+message UpdateThresholdRequest {
+  Threshold threshold = 1;
+}
+
+message UpdateThresholdResponse {
+  Threshold threshold = 1;
 }
 
 message WatchRoomRequest {

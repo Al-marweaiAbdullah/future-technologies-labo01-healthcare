@@ -234,3 +234,61 @@ test("AcknowledgeAlarm zonder acknowledged_by geeft INVALID_ARGUMENT", async () 
     Code.InvalidArgument,
   );
 });
+
+test("ListThresholds geeft de drempels van de kamer, met lege velden voor geen grens", async () => {
+  const { thresholds } = await client.listThresholds({ roomId: DEFAULT_ROOM.id });
+
+  const temperature = thresholds.find((t) => t.metric === Metric.TEMPERATURE);
+  assert.equal(temperature?.roomId, DEFAULT_ROOM.id);
+  assert.equal(temperature?.minValue, 18);
+  assert.equal(temperature?.maxValue, 24);
+  assert.equal(temperature?.maxDurationSec, undefined);
+  assert.equal(
+    thresholds.some((t) => t.metric === Metric.MOTION),
+    false,
+  );
+});
+
+test("UpdateThreshold past een drempel aan; een leeg veld betekent geen grens", async () => {
+  const { threshold } = await client.updateThreshold({
+    threshold: { roomId: DEFAULT_ROOM.id, metric: Metric.TEMPERATURE, maxValue: 26 },
+  });
+
+  assert.equal(threshold?.minValue, undefined);
+  assert.equal(threshold?.maxValue, 26);
+  const { thresholds } = await client.listThresholds({ roomId: DEFAULT_ROOM.id });
+  const temperature = thresholds.find((t) => t.metric === Metric.TEMPERATURE);
+  assert.equal(temperature?.minValue, undefined);
+  assert.equal(temperature?.maxValue, 26);
+});
+
+test("UpdateThreshold weigert ongeldige waarden met INVALID_ARGUMENT", async () => {
+  await assertConnectCode(
+    client.updateThreshold({
+      threshold: {
+        roomId: DEFAULT_ROOM.id,
+        metric: Metric.TEMPERATURE,
+        minValue: 30,
+        maxValue: 20,
+      },
+    }),
+    Code.InvalidArgument,
+  );
+  await assertConnectCode(
+    client.updateThreshold({ threshold: { roomId: DEFAULT_ROOM.id } }),
+    Code.InvalidArgument,
+  );
+  await assertConnectCode(client.updateThreshold({}), Code.InvalidArgument);
+});
+
+test("UpdateThreshold: onbekende kamer of sensor zonder drempel geeft NOT_FOUND", async () => {
+  await assertConnectCode(
+    client.updateThreshold({ threshold: { roomId: "unknown", metric: Metric.TEMPERATURE } }),
+    Code.NotFound,
+  );
+  await assertConnectCode(
+    client.updateThreshold({ threshold: { roomId: DEFAULT_ROOM.id, metric: Metric.MOTION } }),
+    Code.NotFound,
+  );
+  await assertConnectCode(client.listThresholds({ roomId: "unknown" }), Code.NotFound);
+});
