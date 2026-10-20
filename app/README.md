@@ -41,10 +41,10 @@ The terminal will display a QR code and a bundle URL.
 
 | Folder | What |
 | --- | --- |
-| `src/App.tsx` | Switches between the two screens; shows the prototype banner on every screen |
-| `src/screens/` | `RoomListScreen` (all rooms) and `RoomDetailScreen` (readings and alarms of one room) |
-| `src/components/` | Small building blocks: `RoomRow`, `MeasurementRow`, `AlarmCard`, `PrototypeBanner`, `HistorySection` and `HistoryChart` (bar chart built from views: Lynx has no chart library) |
-| `src/format/` | Turns values from the contract into text (`21,5 °C`, `1 alarm`, ...) and readings into chart buckets and min/avg/max (`history.ts`), with tests |
+| `src/App.tsx` | Switches between the screens; shows the prototype banner on every screen |
+| `src/screens/` | `RoomListScreen` (all rooms), `RoomDetailScreen` (readings, chart and alarms of one room) and `ThresholdScreen` (adjust the thresholds via `UpdateThreshold`) |
+| `src/components/` | Small building blocks: `RoomRow`, `MeasurementRow`, `AlarmCard`, `PrototypeBanner`, `ThresholdEditor`, `HistorySection` and `HistoryChart` (bar chart built from views: Lynx has no chart library) |
+| `src/format/` | Turns values from the contract into text (`21,5 °C`, `1 alarm`, ...) readings into chart buckets and min/avg/max (`history.ts`), compares values with the comfort zone (`thresholds.ts`), groups alarms per sensor (`alarmGroups.ts`: the Pi creates a new alarm each time a value crosses a limit again, the app shows one card per sensor) and validates threshold input (`thresholdInput.ts`), with tests |
 
 **Tap handlers that call the Pi must start with `'background only';`.** ReactLynx also runs component code on the main thread, where `fetch` does not exist; the directive removes the handler there. Network code in `useEffect` needs nothing: effects only run on the background thread.
 
@@ -57,6 +57,8 @@ The app talks to the gRPC server on the Pi with [Connect](https://connectrpc.com
 | `client.ts` | `restWell`: the client for normal (unary) RPCs from the contract, e.g. `await restWell.listRooms({})` |
 | `watchRoom.ts` | `watchRoom(roomId, signal)`: the live stream `WatchRoom`, read without Connect's stream layer (see below) |
 | `envelope.ts` | Splits the stream into Connect messages (envelopes), with tests |
+| `updateThreshold.ts` | `updateThreshold(threshold)`: saves a changed threshold on the Pi |
+| `useThresholds.ts` | `useThresholds(roomId)`: the thresholds (comfort zone) of a room via `ListThresholds`, fetched once |
 | `useReadingHistory.ts` | `useReadingHistory(roomId, windowMs, liveReading)`: readings of a period via `ListReadings`, then extended with live readings |
 | `useRoomLive.ts` | `useRoomLive(roomId)`: live readings and open alarms of a room; reconnects after 3 s if the connection drops |
 | `roomState.ts` | How a message from the live stream updates what the app knows |

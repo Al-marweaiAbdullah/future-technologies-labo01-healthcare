@@ -138,6 +138,7 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
   padding: 8px 0;
   border-bottom: 1px solid var(--color-border);
 }
@@ -323,4 +324,92 @@
   font-size: 16px;
   font-weight: 600;
   color: var(--color-text);
+}
+
+/* Comfortzone */
+.MeasurementRow-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.MeasurementRow-range {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.MeasurementRow-value--outside {
+  color: var(--color-alarm);
+}
+
+.Chart-bars {
+  position: relative;
+}
+
+.Chart-bar--outside {
+  background-color: var(--color-alarm);
+}
+
+/* Grens van de comfortzone als stippellijn over de grafiek */
+.Chart-limit {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1px dashed var(--color-ok);
+}
+
+/* Drempels aanpassen */
+.LinkButton {
+  padding-top: 10px;
+}
+
+.LinkButton-text {
+  font-size: 15px;
+  color: var(--color-primary);
+}
+
+.ThresholdEditor-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.ThresholdEditor-fields {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 6px;
+}
+
+.ThresholdField {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-right: 8px;
+}
+
+.ThresholdField-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.ThresholdField-input {
+  height: 40px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-card);
+  font-size: 15px;
+}
+
+.ThresholdEditor-save {
+  margin-top: 10px;
+  align-items: center;
+}
+
+.OkText {
+  font-size: 14px;
+  color: var(--color-ok);
+  margin-top: 6px;
 }

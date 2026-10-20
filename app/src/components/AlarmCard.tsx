@@ -1,9 +1,12 @@
+// Eén kaart per sensor (zie format/alarmGroups.ts): het nieuwste alarm, en hoe vaak het
+// sinds wanneer gebeurde. "Gezien" bevestigt alle ongeziene alarmen van die sensor tegelijk.
 import { useCallback, useState } from '@lynx-js/react';
 
 import {
   AlarmStatus,
   type Alarm,
 } from '../generated/restwell/v1/restwell_pb.js';
+import type { AlarmGroup } from '../format/alarmGroups.js';
 import {
   alarmLabel,
   formatMetricValue,
@@ -14,19 +17,24 @@ import { acknowledgeAlarm } from '../grpc/acknowledgeAlarm.js';
 import { errorMessage } from '../grpc/errors.js';
 
 type AlarmCardProps = {
-  alarm: Alarm;
+  group: AlarmGroup;
   onAcknowledged: (alarm: Alarm) => void;
 };
 
 type InputEvent = { detail: { value: string } };
 
-export function AlarmCard({ alarm, onAcknowledged }: AlarmCardProps) {
+function isUnseen(alarm: Alarm): boolean {
+  return alarm.acknowledgedAtMs === undefined;
+}
+
+export function AlarmCard({ group, onAcknowledged }: AlarmCardProps) {
   const [initials, setInitials] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string>();
-  const isActive = alarm.status === AlarmStatus.ACTIVE;
+  const { latest } = group;
+  const isActive = latest.status === AlarmStatus.ACTIVE;
   // Ook een opgelost alarm moet nog als gezien gemarkeerd worden, anders blijft het staan.
-  const isUnseen = alarm.acknowledgedAtMs === undefined;
+  const unseen = group.alarms.filter(isUnseen);
 
   const onInput = useCallback((event: InputEvent) => {
     setInitials(event.detail.value);
@@ -44,13 +52,20 @@ export function AlarmCard({ alarm, onAcknowledged }: AlarmCardProps) {
     }
     setIsSending(true);
     setError(undefined);
-    acknowledgeAlarm(alarm.id, acknowledgedBy)
+    Promise.all(
+      unseen.map((alarm) => acknowledgeAlarm(alarm.id, acknowledgedBy)),
+    )
       .then((updated) => {
-        if (updated) onAcknowledged(updated);
+        for (const alarm of updated) if (alarm) onAcknowledged(alarm);
       })
       .catch((reason: unknown) => setError(errorMessage(reason)))
       .finally(() => setIsSending(false));
-  }, [alarm.id, initials, isSending, onAcknowledged]);
+  }, [initials, isSending, onAcknowledged, unseen]);
+
+  const occurrences =
+    group.alarms.length > 1
+      ? `${group.alarms.length}× sinds ${formatTime(group.firstStartedAtMs)}`
+      : `sinds ${formatTime(latest.startedAtMs)}`;
 
   return (
     <view
@@ -59,17 +74,17 @@ export function AlarmCard({ alarm, onAcknowledged }: AlarmCardProps) {
       }
     >
       <view className="AlarmCard-header">
-        <text className="AlarmCard-title">{alarm.reason}</text>
-        <text className="AlarmCard-status">{alarmLabel(alarm)}</text>
+        <text className="AlarmCard-title">{latest.reason}</text>
+        <text className="AlarmCard-status">{alarmLabel(latest)}</text>
       </view>
       <text className="AlarmCard-detail">
-        {metricLabel(alarm.metric)}:{' '}
-        {formatMetricValue(alarm.metric, alarm.value)}
-        {' · sinds '}
-        {formatTime(alarm.startedAtMs)}
+        {metricLabel(latest.metric)}:{' '}
+        {formatMetricValue(latest.metric, latest.value)}
+        {' · '}
+        {occurrences}
       </text>
 
-      {isUnseen && (
+      {unseen.length > 0 && (
         <view className="AlarmCard-actions">
           <input
             className="AlarmCard-input"
@@ -84,9 +99,9 @@ export function AlarmCard({ alarm, onAcknowledged }: AlarmCardProps) {
           </view>
         </view>
       )}
-      {alarm.acknowledgedBy !== undefined && (
+      {latest.acknowledgedBy !== undefined && (
         <text className="AlarmCard-detail">
-          Gezien door {alarm.acknowledgedBy}
+          Gezien door {latest.acknowledgedBy}
         </text>
       )}
       {error !== undefined && <text className="ErrorText">{error}</text>}
