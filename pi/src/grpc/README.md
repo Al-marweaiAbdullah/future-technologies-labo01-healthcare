@@ -13,15 +13,15 @@ De server gebruikt [Connect](https://connectrpc.com/). Die spreekt over gewone H
 
 ## Bestanden
 
-| Bestand                       | Wat                                                                        |
-| ----------------------------- | -------------------------------------------------------------------------- |
-| `index.ts`                    | Wat deze map aanbiedt aan de rest van de Pi-code. Importeer alleen hieruit |
-| `server.ts`                   | `startGrpcServer(db, port)`: start de HTTP-server                          |
-| `service.ts`                  | De RPC's uit het contract, met de gegevens uit `db/`                       |
-| `mapping.ts`                  | Zet databaserijen om naar de types uit het contract                        |
-| `events.ts`                   | Meldingsbus voor de live-stroom `WatchRoom`                                |
-| `fake-data.ts`, `dev-fake.ts` | Nepdata om te testen zonder sensoren                                       |
-| `generated/`                  | Gegenereerd uit `/proto` met `npm run generate`, niet in git               |
+| Bestand        | Wat                                                                        |
+| -------------- | -------------------------------------------------------------------------- |
+| `index.ts`     | Wat deze map aanbiedt aan de rest van de Pi-code. Importeer alleen hieruit |
+| `server.ts`    | `startGrpcServer(db, port)`: start de HTTP-server                          |
+| `service.ts`   | De RPC's uit het contract, met de gegevens uit `db/`                       |
+| `mapping.ts`   | Zet databaserijen om naar de types uit het contract                        |
+| `events.ts`    | Meldingsbus voor de live-stroom `WatchRoom`                                |
+| `fake-data.ts` | `fakeMeasurement`: nepmetingen zolang er geen sensoren zijn                |
+| `generated/`   | Gegenereerd uit `/proto` met `npm run generate`, niet in git               |
 
 ## Live data melden
 
@@ -37,10 +37,10 @@ publishAlarm(createAlarm(db, alarm));
 ## Testen zonder Pi
 
 ```bash
-npm run dev:fake
+npm run dev
 ```
 
-Start de server op poort 8080 (te wijzigen met `RESTWELL_GRPC_PORT`) met een database in het geheugen. Elke seconde komt er een nepmeting bij, en een alarm zodra de temperatuur boven 24 °C komt.
+Start RestWell met de server op poort 8080 (te wijzigen met `RESTWELL_GRPC_PORT`) en de database in `pi/data/restwell.db`. Zolang er geen sensoren zijn, maakt `main.ts` elke seconde een nepmeting (te wijzigen met `RESTWELL_SAMPLE_INTERVAL_MS`). Die wordt opgeslagen en door `alarms/` gecontroleerd, dus de alarmen komen uit de echte drempels.
 
 Een gewone call met curl:
 

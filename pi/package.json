@@ -9,7 +9,6 @@
   },
   "scripts": {
     "dev": "node src/main.ts",
-    "dev:fake": "node src/grpc/dev-fake.ts",
     "test": "node --test \"src/**/*.test.ts\"",
     "lint": "eslint .",
     "format": "prettier --write .",

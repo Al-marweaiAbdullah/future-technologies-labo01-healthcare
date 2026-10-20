@@ -9,3 +9,10 @@ const DEFAULT_GRPC_PORT = 8080;
 
 // De app praat met de Pi op deze poort. De server luistert op alle netwerkadressen.
 export const GRPC_PORT = Number(process.env["RESTWELL_GRPC_PORT"] ?? DEFAULT_GRPC_PORT);
+
+const DEFAULT_SAMPLE_INTERVAL_MS = 1000;
+
+// Hoe vaak er een meting gelezen, opgeslagen en gecontroleerd wordt.
+export const SAMPLE_INTERVAL_MS = Number(
+  process.env["RESTWELL_SAMPLE_INTERVAL_MS"] ?? DEFAULT_SAMPLE_INTERVAL_MS,
+);
