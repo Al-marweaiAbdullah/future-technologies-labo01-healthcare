@@ -5,7 +5,7 @@ import {
   type Alarm,
 } from '../generated/restwell/v1/restwell_pb.js';
 import {
-  alarmStatusLabel,
+  alarmLabel,
   formatMetricValue,
   formatTime,
   metricLabel,
@@ -25,6 +25,8 @@ export function AlarmCard({ alarm, onAcknowledged }: AlarmCardProps) {
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string>();
   const isActive = alarm.status === AlarmStatus.ACTIVE;
+  // Ook een opgelost alarm moet nog als gezien gemarkeerd worden, anders blijft het staan.
+  const isUnseen = alarm.acknowledgedAtMs === undefined;
 
   const onInput = useCallback((event: InputEvent) => {
     setInitials(event.detail.value);
@@ -58,9 +60,7 @@ export function AlarmCard({ alarm, onAcknowledged }: AlarmCardProps) {
     >
       <view className="AlarmCard-header">
         <text className="AlarmCard-title">{alarm.reason}</text>
-        <text className="AlarmCard-status">
-          {alarmStatusLabel(alarm.status)}
-        </text>
+        <text className="AlarmCard-status">{alarmLabel(alarm)}</text>
       </view>
       <text className="AlarmCard-detail">
         {metricLabel(alarm.metric)}:{' '}
@@ -69,7 +69,7 @@ export function AlarmCard({ alarm, onAcknowledged }: AlarmCardProps) {
         {formatTime(alarm.startedAtMs)}
       </text>
 
-      {isActive && (
+      {isUnseen && (
         <view className="AlarmCard-actions">
           <input
             className="AlarmCard-input"

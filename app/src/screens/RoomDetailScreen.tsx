@@ -12,6 +12,7 @@ import {
   formatTime,
 } from '../format/measurements.js';
 import { useLatestReading } from '../grpc/useLatestReading.js';
+import { needsAttention } from '../grpc/roomState.js';
 import { useRoomLive, type RoomLiveStatus } from '../grpc/useRoomLive.js';
 
 type RoomDetailScreenProps = {
@@ -36,9 +37,10 @@ export function RoomDetailScreen({ room, onBack }: RoomDetailScreenProps) {
   >({});
 
   const reading = live.reading ?? latestReading;
-  const alarms = live.alarms.map(
-    (alarm) => acknowledgedById[String(alarm.id)] ?? alarm,
-  );
+  // Een opgelost alarm dat hier net gezien werd, verdwijnt meteen (ook zonder live-stroom).
+  const alarms = live.alarms
+    .map((alarm) => acknowledgedById[String(alarm.id)] ?? alarm)
+    .filter(needsAttention);
 
   const onAcknowledged = useCallback((alarm: Alarm) => {
     setAcknowledgedById((current) => ({

@@ -1,8 +1,14 @@
+import { create } from '@bufbuild/protobuf';
 import { describe, expect, test } from '@rstest/core';
 
-import { AlarmStatus, Metric } from '../generated/restwell/v1/restwell_pb.js';
+import {
+  AlarmSchema,
+  AlarmStatus,
+  Metric,
+} from '../generated/restwell/v1/restwell_pb.js';
 import {
   MISSING_VALUE,
+  alarmLabel,
   alarmStatusLabel,
   formatAlarmCount,
   formatHumidity,
@@ -59,6 +65,14 @@ describe('alarmen', () => {
   test('status', () => {
     expect(alarmStatusLabel(AlarmStatus.ACTIVE)).toBe('Actief');
     expect(alarmStatusLabel(AlarmStatus.ACKNOWLEDGED)).toBe('Gezien');
+  });
+
+  test('een opgelost alarm dat niemand zag', () => {
+    const resolved = create(AlarmSchema, { status: AlarmStatus.RESOLVED });
+    expect(alarmLabel(resolved)).toBe('Opgelost, nog niet gezien');
+
+    resolved.acknowledgedAtMs = 2000n;
+    expect(alarmLabel(resolved)).toBe('Opgelost');
   });
 
   test('aantal alarmen', () => {

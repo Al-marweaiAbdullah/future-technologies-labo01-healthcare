@@ -13,10 +13,11 @@ service RestWellService {
   // Metingen vanaf een tijdstip, oudste eerst.
   rpc ListReadings(ListReadingsRequest) returns (ListReadingsResponse);
 
-  // Alarmen die nog niet opgelost zijn.
+  // Alarmen die aandacht vragen: nog niet opgelost, of opgelost maar nog door niemand gezien.
   rpc ListOpenAlarms(ListOpenAlarmsRequest) returns (ListOpenAlarmsResponse);
 
-  // "Ik heb het gezien": status wordt ACKNOWLEDGED, buzzer stopt.
+  // "Ik heb het gezien": ACTIVE wordt ACKNOWLEDGED (buzzer stopt); een RESOLVED alarm
+  // blijft RESOLVED maar krijgt acknowledged_by en acknowledged_at_ms.
   rpc AcknowledgeAlarm(AcknowledgeAlarmRequest) returns (AcknowledgeAlarmResponse);
 }
 
@@ -55,7 +56,7 @@ enum AlarmStatus {
   ALARM_STATUS_UNSPECIFIED = 0;
   ALARM_STATUS_ACTIVE = 1;        // 'active'
   ALARM_STATUS_ACKNOWLEDGED = 2;  // 'acknowledged': gezien
-  ALARM_STATUS_RESOLVED = 3;      // 'resolved': waarde weer normaal
+  ALARM_STATUS_RESOLVED = 3;      // 'resolved': waarde weer normaal (gezien als acknowledged_at_ms gezet is)
 }
 
 message Alarm {

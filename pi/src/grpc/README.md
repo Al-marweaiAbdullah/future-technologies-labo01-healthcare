@@ -51,13 +51,13 @@ curl -X POST http://localhost:8080/restwell.v1.RestWellService/ListRooms -H "Con
 
 "Ik heb het gezien": zet een actief alarm op `ACKNOWLEDGED` en meldt het via `WatchRoom` aan alle telefoons. De buzzer stopt bij de volgende meting (binnen ±2 s); de LED en de tekst op de OLED blijven tot de waarde weer normaal is.
 
-| Situatie                            | Antwoord                                                                  |
-| ----------------------------------- | ------------------------------------------------------------------------- |
-| Actief alarm                        | Het bijgewerkte alarm                                                     |
-| Al bevestigd (bv. door een collega) | Het alarm, ongewijzigd: de eerste bevestiging blijft staan                |
-| Al opgelost                         | `FAILED_PRECONDITION`                                                     |
-| Onbekend alarm                      | `NOT_FOUND`                                                               |
-| Lege `acknowledged_by`              | `INVALID_ARGUMENT`. Vul initialen of een rol in, nooit een volledige naam |
+| Situatie                         | Antwoord                                                                                                    |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Actief alarm                     | Het bijgewerkte alarm                                                                                       |
+| Opgelost, nog niet gezien        | Het alarm blijft `RESOLVED`, maar krijgt wie het zag en wanneer. Pas dan verdwijnt het uit `ListOpenAlarms` |
+| Al gezien (bv. door een collega) | Het alarm, ongewijzigd: de eerste bevestiging blijft staan                                                  |
+| Onbekend alarm                   | `NOT_FOUND`                                                                                                 |
+| Lege `acknowledged_by`           | `INVALID_ARGUMENT`. Vul initialen of een rol in, nooit een volledige naam                                   |
 
 ```bash
 curl -X POST http://localhost:8080/restwell.v1.RestWellService/AcknowledgeAlarm -H "Content-Type: application/json" -d '{"alarmId":"1","acknowledgedBy":"VP"}'

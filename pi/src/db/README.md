@@ -12,21 +12,22 @@ Importeer alleen uit `db/index.ts`. Elke functie krijgt de databaseverbinding al
 import { openDatabase, seedDefaults, saveMeasurement } from "./db/index.ts";
 ```
 
-| Functie                                      | Wat ze doet                                                                               |
-| -------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `openDatabase(path)`                         | Opent de database (of `IN_MEMORY`), zet WAL en foreign keys aan en voert de migraties uit |
-| `seedDefaults(db)`                           | Maakt `room1` ("Kamer 1") en de standaarddrempels aan als ze nog niet bestaan             |
-| `listRooms(db)` / `getRoom(db, roomId)`      | Kamers opvragen                                                                           |
-| `saveMeasurement(db, measurement)`           | Meting opslaan, geeft de rij met `id` terug                                               |
-| `getLatestMeasurement(db, roomId)`           | Laatste meting van een kamer, of `undefined`                                              |
-| `listMeasurements(db, roomId, fromMs, toMs)` | Metingen in een periode, oudste eerst (voor grafieken)                                    |
-| `listThresholds(db, roomId)`                 | Drempels van een kamer                                                                    |
-| `createAlarm(db, alarm)`                     | Nieuw alarm met status `active`                                                           |
-| `getAlarm(db, alarmId)`                      | Eén alarm op id, in elke status, of `undefined`                                           |
-| `listOpenAlarms(db, roomId)`                 | Alarmen die nog niet opgelost zijn (`active` of `acknowledged`)                           |
-| `getOpenAlarmForSensor(db, roomId, sensor)`  | Het open alarm van één sensor, of `undefined`                                             |
-| `acknowledgeAlarm(db, alarmId, by, nowMs)`   | `active` → `acknowledged`. Geeft het alarm terug, of `undefined`                          |
-| `resolveAlarm(db, alarmId, nowMs)`           | Open alarm → `resolved`. Geeft het alarm terug, of `undefined`                            |
+| Functie                                      | Wat ze doet                                                                                                                                             |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `openDatabase(path)`                         | Opent de database (of `IN_MEMORY`), zet WAL en foreign keys aan en voert de migraties uit                                                               |
+| `seedDefaults(db)`                           | Maakt `room1` ("Kamer 1") en de standaarddrempels aan als ze nog niet bestaan                                                                           |
+| `listRooms(db)` / `getRoom(db, roomId)`      | Kamers opvragen                                                                                                                                         |
+| `saveMeasurement(db, measurement)`           | Meting opslaan, geeft de rij met `id` terug                                                                                                             |
+| `getLatestMeasurement(db, roomId)`           | Laatste meting van een kamer, of `undefined`                                                                                                            |
+| `listMeasurements(db, roomId, fromMs, toMs)` | Metingen in een periode, oudste eerst (voor grafieken)                                                                                                  |
+| `listThresholds(db, roomId)`                 | Drempels van een kamer                                                                                                                                  |
+| `createAlarm(db, alarm)`                     | Nieuw alarm met status `active`                                                                                                                         |
+| `getAlarm(db, alarmId)`                      | Eén alarm op id, in elke status, of `undefined`                                                                                                         |
+| `listOpenAlarms(db, roomId)`                 | Alarmen die nog niet opgelost zijn (`active` of `acknowledged`)                                                                                         |
+| `listAlarmsToShow(db, roomId)`               | Wat de app toont: open alarmen, plus opgeloste alarmen die nog niemand gezien heeft                                                                     |
+| `getOpenAlarmForSensor(db, roomId, sensor)`  | Het open alarm van één sensor, of `undefined`                                                                                                           |
+| `acknowledgeAlarm(db, alarmId, by, nowMs)`   | Nog niet gezien → gezien: `active` wordt `acknowledged`, `resolved` blijft `resolved` maar krijgt wie en wanneer. Geeft het alarm terug, of `undefined` |
+| `resolveAlarm(db, alarmId, nowMs)`           | Open alarm → `resolved`. Geeft het alarm terug, of `undefined`                                                                                          |
 
 De types (`RoomRow`, `MeasurementRow`, `AlarmRow`, ...) staan in `types.ts` en worden ook via `index.ts` geëxporteerd. Ze beschrijven de rijen in de database. Naar de app gaan de types uit `/proto`.
 
