@@ -428,3 +428,28 @@
   color: var(--color-ok);
   margin-top: 6px;
 }
+
+/* Alarmmomenten en inzicht bij de grafiek */
+.Chart-alarms {
+  display: flex;
+  flex-direction: row;
+  height: 4px;
+  margin-left: 62px;
+  margin-top: 2px;
+}
+
+.Chart-alarm {
+  flex: 1;
+  margin: 0 1px;
+}
+
+.Chart-alarm--active {
+  background-color: var(--color-alarm);
+}
+
+.Insight {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 6px 0 2px;
+}

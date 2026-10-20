@@ -1,5 +1,5 @@
-// Verloop van één sensor over een gekozen periode: grafiek met comfortzone en samenvatting
-// (min/gem/max en hoe lang de waarde binnen de comfortzone bleef).
+// Verloop van één sensor over een gekozen periode: grafiek met comfortzone en alarmmomenten,
+// samenvatting (min/gem/max) en een inzichtzin ("Afgelopen uur 12 min te warm").
 // Loopt live mee met de metingen uit WatchRoom.
 import { useState } from '@lynx-js/react';
 
@@ -25,17 +25,30 @@ import {
   fractionInside,
   thresholdFor,
 } from '../format/thresholds.js';
+import { alarmFlags, insightSentence } from '../format/insights.js';
+import { useAlarmHistory } from '../grpc/useAlarmHistory.js';
 import { useReadingHistory } from '../grpc/useReadingHistory.js';
 import { HistoryChart } from './HistoryChart.js';
 
 const BUCKET_COUNT = 30;
 const MINUTE_MS = 60 * 1000;
 
-type Period = { label: string; windowMs: number };
+const HOUR_MS = 60 * MINUTE_MS;
 
-const TEN_MINUTES: Period = { label: '10 min', windowMs: 10 * MINUTE_MS };
-const ONE_HOUR: Period = { label: '1 uur', windowMs: 60 * MINUTE_MS };
-const PERIODS: Period[] = [TEN_MINUTES, ONE_HOUR];
+// `since` staat voor de inzichtzin, bv. "Afgelopen uur 12 min te warm".
+type Period = { label: string; since: string; windowMs: number };
+
+const TEN_MINUTES: Period = {
+  label: '10 min',
+  since: 'Afgelopen 10 min',
+  windowMs: 10 * MINUTE_MS,
+};
+const PERIODS: Period[] = [
+  TEN_MINUTES,
+  { label: '1 uur', since: 'Afgelopen uur', windowMs: HOUR_MS },
+  { label: '6 uur', since: 'Afgelopen 6 uur', windowMs: 6 * HOUR_MS },
+  { label: '24 uur', since: 'Afgelopen 24 uur', windowMs: 24 * HOUR_MS },
+];
 
 const METRIC_LABELS: Record<ChartMetric, string> = {
   temperature: 'Temperatuur',
@@ -53,6 +66,8 @@ type HistorySectionProps = {
   roomId: string;
   liveReading?: Reading;
   thresholds: Threshold[];
+  /** Verandert bij elke alarmwijziging uit de live-stroom (zie alarmHistoryKey). */
+  alarmRefreshKey: string;
 };
 
 type ChipProps = {
@@ -84,6 +99,7 @@ export function HistorySection({
   roomId,
   liveReading,
   thresholds,
+  alarmRefreshKey,
 }: HistorySectionProps) {
   const [metric, setMetric] = useState<ChartMetric>('temperature');
   const [period, setPeriod] = useState<Period>(TEN_MINUTES);
@@ -102,6 +118,24 @@ export function HistorySection({
   const summary = summarize(history.readings, metric);
   const threshold = thresholdFor(thresholds, metric);
   const inside = fractionInside(history.readings, metric, threshold);
+  const alarmHistory = useAlarmHistory(
+    roomId,
+    period.windowMs,
+    alarmRefreshKey,
+  );
+  const flags = alarmFlags(
+    buckets,
+    period.windowMs / BUCKET_COUNT,
+    alarmHistory.alarms,
+    metric,
+    toMs,
+  );
+  const insight = insightSentence(
+    metric,
+    period.since,
+    history.readings,
+    threshold,
+  );
   const format = METRIC_FORMATTERS[metric];
   const show = (value?: number) =>
     value === undefined ? MISSING_VALUE : format(value);
@@ -142,6 +176,7 @@ export function HistorySection({
           toMs={toMs}
           formatValue={format}
           threshold={threshold}
+          alarmFlags={flags}
         />
       )}
 
@@ -159,6 +194,12 @@ export function HistorySection({
           <text className="Summary-value">{show(summary.max)}</text>
         </view>
       </view>
+      {flags.some(Boolean) && (
+        <text className="InfoText">
+          Rode strook onder de grafiek: alarm actief.
+        </text>
+      )}
+      {insight !== undefined && <text className="Insight">{insight}</text>}
       {threshold && inside !== undefined && (
         <text className="InfoText">
           {`${formatPercent(inside)} van de tijd binnen de comfortzone (${formatRange(threshold, format) ?? ''})`}

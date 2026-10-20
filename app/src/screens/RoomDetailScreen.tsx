@@ -113,6 +113,7 @@ export function RoomDetailScreen({
         roomId={room.id}
         liveReading={live.reading}
         thresholds={thresholds}
+        alarmRefreshKey={alarmHistoryKey(alarms)}
       />
 
       <text className="Section-title">Alarmen</text>
