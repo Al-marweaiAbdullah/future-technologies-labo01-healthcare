@@ -24,5 +24,6 @@ build/
 .env.*
 !.env.example
 
-# Gegenereerde code uit /proto (aanmaken met: npm run generate in pi/)
+# Gegenereerde code uit /proto (aanmaken met: npm run generate in pi/ en app/)
 pi/src/grpc/generated/
+app/src/generated/

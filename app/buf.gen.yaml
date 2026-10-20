@@ -1,0 +1,11 @@
+# Genereert TypeScript uit /proto. Uitvoeren met: npm run generate
+# Gebeurt ook automatisch voor npm run dev, build en test.
+version: v2
+inputs:
+  - directory: ../proto
+plugins:
+  - local: protoc-gen-es
+    out: src/generated
+    opt:
+      - target=ts
+clean: true
