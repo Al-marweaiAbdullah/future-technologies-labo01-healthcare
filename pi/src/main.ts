@@ -2,7 +2,13 @@
 // stuurt LED, buzzer en OLED aan en stelt alles via gRPC beschikbaar.
 // Zonder Pi: `npm run dev:fake`, dan komen de metingen van de nep-hardware.
 import { setTimeout as sleep } from "node:timers/promises";
-import { decideRoomOutput, evaluateMeasurement, type ExceededSince } from "./alarms/index.ts";
+import {
+  decideRoomOutput,
+  evaluateMeasurement,
+  evaluateSensorHealth,
+  type ExceededSince,
+  type MissingSince,
+} from "./alarms/index.ts";
 import { DB_PATH, GRPC_PORT, SAMPLE_INTERVAL_MS, USE_FAKE_HARDWARE } from "./config.ts";
 import {
   createAlarm,
@@ -13,6 +19,7 @@ import {
   resolveAlarm,
   saveMeasurement,
   seedDefaults,
+  type NewAlarm,
   type NewMeasurement,
 } from "./db/index.ts";
 import { publishAlarm, publishMeasurement, startGrpcServer } from "./grpc/index.ts";
@@ -49,6 +56,8 @@ startGrpcServer(db, GRPC_PORT);
 
 // Blijft bewaard tussen twee metingen, zodat alarms/ weet hoe lang een waarde al buiten de drempel zit.
 let exceededSince: ExceededSince = new Map();
+// Idem voor sensoren: sinds wanneer ze onafgebroken geen waarde meer geven.
+let missingSince: MissingSince = new Map();
 
 function toMeasurement(readings: SensorReadings, nowMs: number): NewMeasurement {
   return {
@@ -59,6 +68,20 @@ function toMeasurement(readings: SensorReadings, nowMs: number): NewMeasurement 
     light_raw: readings.lightRaw,
     motion: readings.motionDetected === null ? null : readings.motionDetected ? 1 : 0,
   };
+}
+
+function storeAlarmChanges(
+  alarmsToCreate: NewAlarm[],
+  alarmIdsToResolve: number[],
+  nowMs: number,
+): void {
+  for (const alarm of alarmsToCreate) {
+    publishAlarm(createAlarm(db, alarm));
+  }
+  for (const alarmId of alarmIdsToResolve) {
+    const resolved = resolveAlarm(db, alarmId, nowMs);
+    if (resolved) publishAlarm(resolved);
+  }
 }
 
 function processMeasurement(measurement: NewMeasurement, nowMs: number): void {
@@ -75,14 +98,17 @@ function processMeasurement(measurement: NewMeasurement, nowMs: number): void {
     localHour: new Date(nowMs).getHours(),
   });
   exceededSince = result.exceededSince;
+  storeAlarmChanges(result.alarmsToCreate, result.alarmIdsToResolve, nowMs);
 
-  for (const alarm of result.alarmsToCreate) {
-    publishAlarm(createAlarm(db, alarm));
-  }
-  for (const alarmId of result.alarmIdsToResolve) {
-    const resolved = resolveAlarm(db, alarmId, nowMs);
-    if (resolved) publishAlarm(resolved);
-  }
+  // Opnieuw ophalen: de wijzigingen hierboven kunnen alarmen gesloten hebben.
+  const health = evaluateSensorHealth({
+    measurement,
+    openAlarms: listOpenAlarms(db, ROOM_ID),
+    missingSince,
+    nowMs,
+  });
+  missingSince = health.missingSince;
+  storeAlarmChanges(health.alarmsToCreate, health.alarmIdsToResolve, nowMs);
 }
 
 function formatValue(value: number | null, unit: string): string {
