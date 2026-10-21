@@ -75,3 +75,27 @@ test('een opgelost en gezien alarm verdwijnt', () => {
 
   expect(state.alarms).toEqual([]);
 });
+
+test('een alarm dat net afgaat, wordt het nieuwe alarm', () => {
+  let state = withOpenAlarms(INITIAL_ROOM_STATE, [alarm(1n, 1000n)]);
+  state = applyRoomEvent(state, { case: 'alarm', value: alarm(2n, 2000n) });
+
+  expect(state.newAlarm?.id).toBe(2n);
+});
+
+test('alarmen die al openstonden, zijn geen nieuw alarm', () => {
+  const state = withOpenAlarms(INITIAL_ROOM_STATE, [alarm(1n, 1000n)]);
+
+  expect(state.newAlarm).toBeUndefined();
+});
+
+test('een update van een bekend alarm is geen nieuw alarm', () => {
+  let state = withOpenAlarms(INITIAL_ROOM_STATE, [alarm(1n, 1000n)]);
+  state = applyRoomEvent(state, { case: 'alarm', value: alarm(1n, 1000n) });
+  state = applyRoomEvent(state, {
+    case: 'alarm',
+    value: alarm(1n, 1000n, AlarmStatus.RESOLVED),
+  });
+
+  expect(state.newAlarm).toBeUndefined();
+});

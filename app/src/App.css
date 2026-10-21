@@ -453,3 +453,54 @@
   color: var(--color-text);
   margin: 6px 0 2px;
 }
+
+/* Popup als er net een alarm afgaat */
+.ScreenWithPopup {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  position: relative;
+}
+
+.AlarmPopup {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  right: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background-color: var(--color-alarm);
+}
+
+.AlarmPopup-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.AlarmPopup-detail {
+  font-size: 14px;
+  color: #ffffff;
+  margin-top: 4px;
+}
+
+.AlarmPopup-hint {
+  font-size: 12px;
+  color: var(--color-alarm-soft);
+  margin-top: 6px;
+}
+
+/* Aftelling tot de buzzer in de kamer afgaat */
+.AlarmCard-buzzer {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-alarm);
+  margin-top: 4px;
+}
+
+.AlarmPopup-buzzer {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 4px;
+}

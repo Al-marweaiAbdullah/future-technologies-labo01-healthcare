@@ -10,6 +10,7 @@ import {
 export type RoomState = {
   reading?: Reading; // de laatste meting
   alarms: Alarm[]; // alarmen die aandacht vragen (zie needsAttention), oudste eerst
+  newAlarm?: Alarm; // het laatste alarm dat net afging terwijl het scherm open stond
 };
 
 export const INITIAL_ROOM_STATE: RoomState = { alarms: [] };
@@ -34,6 +35,15 @@ function upsertAlarm(alarms: Alarm[], alarm: Alarm): Alarm[] {
   return [...others, alarm].sort(byStartTime);
 }
 
+// Alleen een actief alarm dat de app nog niet kende, is net afgegaan. Een update van een
+// bekend alarm (gezien, opgelost) of de alarmen die al openstonden, tonen geen popup.
+function isNewAlarm(alarms: Alarm[], alarm: Alarm): boolean {
+  return (
+    alarm.status === AlarmStatus.ACTIVE &&
+    !alarms.some((existing) => existing.id === alarm.id)
+  );
+}
+
 export function withOpenAlarms(state: RoomState, alarms: Alarm[]): RoomState {
   return { ...state, alarms: [...alarms].sort(byStartTime) };
 }
@@ -46,7 +56,13 @@ export function applyRoomEvent(
     case 'reading':
       return { ...state, reading: event.value };
     case 'alarm':
-      return { ...state, alarms: upsertAlarm(state.alarms, event.value) };
+      return {
+        ...state,
+        alarms: upsertAlarm(state.alarms, event.value),
+        newAlarm: isNewAlarm(state.alarms, event.value)
+          ? event.value
+          : state.newAlarm,
+      };
     default:
       return state;
   }

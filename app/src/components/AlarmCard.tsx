@@ -7,6 +7,7 @@ import {
   type Alarm,
 } from '../generated/restwell/v1/restwell_pb.js';
 import type { AlarmGroup } from '../format/alarmGroups.js';
+import { formatBuzzerCountdown } from '../format/buzzer.js';
 import {
   alarmLabel,
   formatMetricValue,
@@ -15,6 +16,7 @@ import {
 } from '../format/measurements.js';
 import { acknowledgeAlarm } from '../grpc/acknowledgeAlarm.js';
 import { errorMessage } from '../grpc/errors.js';
+import { useNow } from '../hooks/useNow.js';
 
 type AlarmCardProps = {
   group: AlarmGroup;
@@ -35,6 +37,8 @@ export function AlarmCard({ group, onAcknowledged }: AlarmCardProps) {
   const isActive = latest.status === AlarmStatus.ACTIVE;
   // Ook een opgelost alarm moet nog als gezien gemarkeerd worden, anders blijft het staan.
   const unseen = group.alarms.filter(isUnseen);
+  // Telt af zolang niemand het alarm gezien heeft; daarna gaat de buzzer niet meer af.
+  const buzzerCountdown = formatBuzzerCountdown(group.alarms, useNow());
 
   const onInput = useCallback((event: InputEvent) => {
     setInitials(event.detail.value);
@@ -83,6 +87,9 @@ export function AlarmCard({ group, onAcknowledged }: AlarmCardProps) {
         {' · '}
         {occurrences}
       </text>
+      {buzzerCountdown !== undefined && (
+        <text className="AlarmCard-buzzer">{buzzerCountdown}</text>
+      )}
 
       {unseen.length > 0 && (
         <view className="AlarmCard-actions">
