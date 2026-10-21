@@ -41,6 +41,10 @@ app/                ← de Lynx-app op de telefoon
 
 Hoe de onderdelen op de Pi samenwerken, staat in [`pi/README.md`](pi/README.md).
 
+## Reflectie en AI-verantwoording
+
+Zie [`docs/reflectie.md`](docs/reflectie.md): wat werkte, wat niet, de volgende stap, en welke AI-tools we gebruikten en wat we zelf controleerden.
+
 ## Werkafspraken
 
 Zie [AGENTS.md](AGENTS.md) voor de structuur, de open beslissingen en de regels voor codekwaliteit.
