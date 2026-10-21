@@ -1,49 +1,73 @@
-// De app: een kameroverzicht, per kamer een detailscherm, en een scherm om de drempels aan
-// te passen. Navigatie is gewoon state: er zijn maar drie schermen, daar is geen router voor nodig.
+// De app: drie tabs onderaan (Home, Drempels, Alarmen). Home toont het kameroverzicht en per
+// kamer een detailscherm; Drempels en Alarmen gelden voor één kamer, te kiezen bovenaan.
+// Navigatie is gewoon state, daar is geen router voor nodig.
 import { useCallback, useState } from '@lynx-js/react';
 
 import './App.css';
 import type { Room } from './generated/restwell/v1/restwell_pb.js';
+import { AlarmHistoryScreen } from './screens/AlarmHistoryScreen.js';
 import { PrototypeBanner } from './components/PrototypeBanner.js';
 import { RoomDetailScreen } from './screens/RoomDetailScreen.js';
 import { RoomListScreen } from './screens/RoomListScreen.js';
+import { TabBar, type Tab } from './components/TabBar.js';
 import { ThresholdScreen } from './screens/ThresholdScreen.js';
-
-type Screen =
-  | { name: 'rooms' }
-  | { name: 'room'; room: Room }
-  | { name: 'thresholds'; room: Room };
+import { pickRoom } from './format/rooms.js';
+import { useRooms } from './grpc/useRooms.js';
 
 export function App() {
-  const [screen, setScreen] = useState<Screen>({ name: 'rooms' });
+  const rooms = useRooms();
+  const [tab, setTab] = useState<Tab>('home');
+  // De kamer die op Home open staat; leeg is het kameroverzicht.
+  const [openRoomId, setOpenRoomId] = useState<string>();
+  // De kamer voor Drempels en Alarmen. Een kamer openen op Home kiest ze ook hier.
+  const [selectedRoomId, setSelectedRoomId] = useState<string>();
 
-  const showRooms = useCallback(() => setScreen({ name: 'rooms' }), []);
-  const showRoom = useCallback(
-    (room: Room) => setScreen({ name: 'room', room }),
+  const openRoom = useCallback((room: Room) => {
+    setOpenRoomId(room.id);
+    setSelectedRoomId(room.id);
+  }, []);
+  const closeRoom = useCallback(() => setOpenRoomId(undefined), []);
+  const selectRoom = useCallback(
+    (room: Room) => setSelectedRoomId(room.id),
     [],
   );
-  const showThresholds = useCallback(
-    (room: Room) => setScreen({ name: 'thresholds', room }),
-    [],
-  );
+
+  const openRoomDetail = rooms.rooms.find((room) => room.id === openRoomId);
+  const selectedRoom = pickRoom(rooms.rooms, selectedRoomId);
 
   return (
     <view className="App">
       <PrototypeBanner />
-      {screen.name === 'rooms' && <RoomListScreen onSelectRoom={showRoom} />}
-      {screen.name === 'room' && (
-        <RoomDetailScreen
-          room={screen.room}
-          onBack={showRooms}
-          onEditThresholds={() => showThresholds(screen.room)}
-        />
+      {tab === 'home' && openRoomDetail === undefined && (
+        <RoomListScreen rooms={rooms} onSelectRoom={openRoom} />
       )}
-      {screen.name === 'thresholds' && (
+      {tab === 'home' && openRoomDetail !== undefined && (
+        <RoomDetailScreen room={openRoomDetail} onBack={closeRoom} />
+      )}
+      {tab === 'thresholds' && selectedRoom !== undefined && (
         <ThresholdScreen
-          room={screen.room}
-          onBack={() => showRoom(screen.room)}
+          key={selectedRoom.id}
+          rooms={rooms.rooms}
+          room={selectedRoom}
+          onSelectRoom={selectRoom}
         />
       )}
+      {tab === 'alarms' && selectedRoom !== undefined && (
+        <AlarmHistoryScreen
+          key={selectedRoom.id}
+          rooms={rooms.rooms}
+          room={selectedRoom}
+          onSelectRoom={selectRoom}
+        />
+      )}
+      {tab !== 'home' && selectedRoom === undefined && (
+        <view className="Screen">
+          <text className="InfoText">
+            {rooms.status === 'loading' ? 'Kamers laden…' : 'Geen kamers.'}
+          </text>
+        </view>
+      )}
+      <TabBar selected={tab} onSelect={setTab} />
     </view>
   );
 }

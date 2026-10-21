@@ -2,7 +2,6 @@ import { useCallback, useState } from '@lynx-js/react';
 
 import type { Alarm, Room } from '../generated/restwell/v1/restwell_pb.js';
 import { AlarmCard } from '../components/AlarmCard.js';
-import { AlarmHistorySection } from '../components/AlarmHistorySection.js';
 import { AlarmPopup } from '../components/AlarmPopup.js';
 import { alarmHistoryKey } from '../format/alarmHistory.js';
 import { HistorySection } from '../components/HistorySection.js';
@@ -29,7 +28,6 @@ import { useThresholds } from '../grpc/useThresholds.js';
 type RoomDetailScreenProps = {
   room: Room;
   onBack: () => void;
-  onEditThresholds: () => void;
 };
 
 const LIVE_STATUS_LABELS: Record<RoomLiveStatus, string> = {
@@ -45,11 +43,7 @@ function withActiveHours(range?: string, activeHours?: string) {
   return `${range} (${activeHours})`;
 }
 
-export function RoomDetailScreen({
-  room,
-  onBack,
-  onEditThresholds,
-}: RoomDetailScreenProps) {
+export function RoomDetailScreen({ room, onBack }: RoomDetailScreenProps) {
   const live = useRoomLive(room.id);
   const latestReading = useLatestReading(room.id);
   const thresholds = useThresholds(room.id);
@@ -146,9 +140,6 @@ export function RoomDetailScreen({
             label="Beweging"
             value={formatMotion(reading?.motionDetected)}
           />
-          <view className="LinkButton" bindtap={onEditThresholds}>
-            <text className="LinkButton-text">Drempels aanpassen ›</text>
-          </view>
         </view>
 
         <text className="Section-title">Verloop</text>
@@ -157,12 +148,6 @@ export function RoomDetailScreen({
           liveReading={live.reading}
           thresholds={thresholds}
           alarmRefreshKey={alarmHistoryKey(alarms)}
-        />
-
-        <text className="Section-title">Recente alarmen</text>
-        <AlarmHistorySection
-          roomId={room.id}
-          refreshKey={alarmHistoryKey(alarms)}
         />
       </scroll-view>
       {popupAlarm && (

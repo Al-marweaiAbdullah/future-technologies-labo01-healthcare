@@ -528,3 +528,27 @@
   padding-top: 10px;
   border-top: 1px solid var(--color-border);
 }
+
+.TabBar {
+  display: flex;
+  flex-direction: row;
+  padding-bottom: 24px;
+  background-color: var(--color-card);
+  border-top: 1px solid var(--color-border);
+}
+
+.TabBar-item {
+  flex: 1;
+  padding: 14px 0;
+}
+
+.TabBar-text {
+  font-size: 14px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.TabBar-text--selected {
+  color: var(--color-primary);
+  font-weight: 600;
+}
