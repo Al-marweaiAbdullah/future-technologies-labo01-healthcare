@@ -5,6 +5,11 @@ Script voor de verplichte demo (#34): hardware en app samen in beeld, met minste
 ## Goed om te weten
 
 - **Ademen op de DHT22** laat de vochtigheid op een paar seconden stijgen. Een vochtigheidsalarm gaat meteen af, zonder wachttijd. Een hand op de sensor of het licht (60 s boven de grens) duurt langer.
+- **Het lichtalarm geldt alleen 's nachts** (22 tot 7, klok van de Pi). Overdag gaat het dus niet af: gebruik vochtigheid. Wil je toch licht tonen, zet het venster dan tijdelijk rond het huidige uur, en daarna terug (`active_from_hour = 22, active_to_hour = 7`):
+
+  ```bash
+  sqlite3 pi/data/restwell.db "UPDATE thresholds SET active_from_hour = 8, active_to_hour = 20 WHERE sensor = 'light';"
+  ```
 - **De buzzer gaat pas na 60 s af** als niemand het alarm bevestigt (`buzzer_after_sec`).
 - **Na "Gezien"** stopt de buzzer, maar de LED blijft aan en het OLED-scherm toont het alarm nog. De kamer wordt oranje. Pas als de waarde weer normaal is, wordt alles groen en toont het OLED-scherm "Alles OK".
 
