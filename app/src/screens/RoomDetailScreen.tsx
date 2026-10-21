@@ -99,6 +99,20 @@ export function RoomDetailScreen({ room, onBack }: RoomDetailScreenProps) {
           {reading ? ` · meting van ${formatTime(reading.timestampMs)}` : ''}
         </text>
 
+        <text className="Section-title">Alarmen</text>
+        {alarms.length === 0 && (
+          <view className="Card">
+            <text className="InfoText">Geen open alarmen.</text>
+          </view>
+        )}
+        {alarmGroups.map((group) => (
+          <AlarmCard
+            key={group.metric}
+            group={group}
+            onAcknowledged={onAcknowledged}
+          />
+        ))}
+
         <text className="Section-title">Metingen</text>
         <view className="Card">
           <MeasurementRow
@@ -135,20 +149,6 @@ export function RoomDetailScreen({ room, onBack }: RoomDetailScreenProps) {
           thresholds={thresholds}
           alarmRefreshKey={alarmHistoryKey(alarms)}
         />
-
-        <text className="Section-title">Alarmen</text>
-        {alarms.length === 0 && (
-          <view className="Card">
-            <text className="InfoText">Geen open alarmen.</text>
-          </view>
-        )}
-        {alarmGroups.map((group) => (
-          <AlarmCard
-            key={group.metric}
-            group={group}
-            onAcknowledged={onAcknowledged}
-          />
-        ))}
       </scroll-view>
       {popupAlarm && (
         <AlarmPopup
