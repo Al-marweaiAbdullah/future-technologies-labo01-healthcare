@@ -28,6 +28,7 @@ import {
 import { alarmFlags, insightSentence } from '../format/insights.js';
 import { useAlarmHistory } from '../grpc/useAlarmHistory.js';
 import { useReadingHistory } from '../grpc/useReadingHistory.js';
+import { Chip } from './Chip.js';
 import { HistoryChart } from './HistoryChart.js';
 
 const BUCKET_COUNT = 30;
@@ -69,27 +70,6 @@ type HistorySectionProps = {
   /** Verandert bij elke alarmwijziging uit de live-stroom (zie alarmHistoryKey). */
   alarmRefreshKey: string;
 };
-
-type ChipProps = {
-  label: string;
-  isSelected: boolean;
-  onPress: () => void;
-};
-
-function Chip({ label, isSelected, onPress }: ChipProps) {
-  return (
-    <view
-      className={isSelected ? 'Chip Chip--selected' : 'Chip'}
-      bindtap={onPress}
-    >
-      <text
-        className={isSelected ? 'Chip-text Chip-text--selected' : 'Chip-text'}
-      >
-        {label}
-      </text>
-    </view>
-  );
-}
 
 function formatPercent(fraction: number): string {
   return `${Math.round(fraction * 100)} %`;

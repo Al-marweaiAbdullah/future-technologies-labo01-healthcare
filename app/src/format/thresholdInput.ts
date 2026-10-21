@@ -12,7 +12,11 @@ export type ThresholdInput = {
   min: string;
   max: string;
   durationSec: string;
+  fromHour: string; // actief vanaf dit uur (0-23), leeg = altijd
+  toHour: string; // actief tot dit uur, niet inbegrepen
 };
+
+const HOURS_PER_DAY = 24;
 
 export type ParseResult =
   { ok: true; threshold: Threshold } | { ok: false; error: string };
@@ -34,7 +38,51 @@ export function toThresholdInput(threshold: Threshold): ThresholdInput {
     min: formatInputNumber(threshold.minValue),
     max: formatInputNumber(threshold.maxValue),
     durationSec: formatInputNumber(threshold.maxDurationSec),
+    fromHour: formatInputNumber(threshold.activeFromHour),
+    toHour: formatInputNumber(threshold.activeToHour),
   };
+}
+
+function isValidHour(hour: number): boolean {
+  return Number.isInteger(hour) && hour >= 0 && hour < HOURS_PER_DAY;
+}
+
+type ActiveHours = { from?: number; to?: number };
+
+// Dezelfde regels als de Pi (pi/src/db/thresholds.ts), zodat de melding meteen komt.
+function parseActiveHours(
+  current: Threshold,
+  input: ThresholdInput,
+): { ok: true; hours: ActiveHours } | { ok: false; error: string } {
+  const from = parseOptionalNumber(input.fromHour);
+  const to = parseOptionalNumber(input.toHour);
+  if (from === undefined && to === undefined) {
+    // Lege uren laat de Pi ongewijzigd: het contract kent (nog) geen "wis de uren".
+    // Zonder deze melding zou de gebruiker denken dat de regel nu altijd geldt.
+    if (current.activeFromHour !== undefined) {
+      return {
+        ok: false,
+        error: 'De nachtrust leegmaken kan nog niet vanuit de app',
+      };
+    }
+    return { ok: true, hours: {} };
+  }
+  if (from === undefined || to === undefined) {
+    return {
+      ok: false,
+      error: 'Vul het begin- en einduur van de nachtrust in',
+    };
+  }
+  if (from === 'invalid' || to === 'invalid') {
+    return { ok: false, error: 'Een uur is een geheel getal van 0 tot 23' };
+  }
+  if (!isValidHour(from) || !isValidHour(to)) {
+    return { ok: false, error: 'Een uur is een geheel getal van 0 tot 23' };
+  }
+  if (from === to) {
+    return { ok: false, error: 'Begin- en einduur mogen niet gelijk zijn' };
+  }
+  return { ok: true, hours: { from, to } };
 }
 
 /** Een volledige nieuwe drempel: een leeg veld betekent "geen grens", niet "ongewijzigd". */
@@ -64,6 +112,8 @@ export function parseThresholdInput(
       error: 'Duur is een geheel aantal seconden (0 of meer)',
     };
   }
+  const activeHours = parseActiveHours(current, input);
+  if (!activeHours.ok) return activeHours;
 
   return {
     ok: true,
@@ -73,6 +123,8 @@ export function parseThresholdInput(
       minValue: min,
       maxValue: max,
       maxDurationSec: duration,
+      activeFromHour: activeHours.hours.from,
+      activeToHour: activeHours.hours.to,
     }),
   };
 }

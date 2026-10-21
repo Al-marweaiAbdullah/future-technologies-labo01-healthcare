@@ -1,11 +1,11 @@
 // Eén drempel aanpassen: minimum, maximum en hoe lang een waarde buiten de grens mag blijven.
+// Bij licht ook de nachtrust: alleen dan geldt het lichtalarm, overdag mag het licht aan.
 import { useCallback, useState } from '@lynx-js/react';
 
 import {
   Metric,
   type Threshold,
 } from '../generated/restwell/v1/restwell_pb.js';
-import { metricLabel } from '../format/measurements.js';
 import {
   parseThresholdInput,
   toThresholdInput,
@@ -20,19 +20,29 @@ const UNITS: Partial<Record<Metric, string>> = {
   [Metric.LIGHT]: 'ruwe waarde 0–1023',
 };
 
+// De standaardwaarden en hun bron (zie pi/src/db/README.md), als houvast bij het aanpassen.
+const DEFAULT_HINTS: Partial<Record<Metric, string>> = {
+  [Metric.TEMPERATURE]: 'Standaard 18–24 °C (WHO)',
+  [Metric.HUMIDITY]: 'Standaard 30–60 % (EPA)',
+  [Metric.LIGHT]: 'Standaard max 900, alarm na 60 s',
+};
+
 type InputEvent = { detail: { value: string } };
 
 type ThresholdEditorProps = {
   threshold: Threshold;
+  /** Na opslaan, zodat het scherm de nieuwe drempel onthoudt bij het wisselen van tab. */
+  onSaved: (threshold: Threshold) => void;
 };
 
 type FieldProps = {
   label: string;
   value: string;
+  placeholder?: string;
   onChange: (value: string) => void;
 };
 
-function Field({ label, value, onChange }: FieldProps) {
+function Field({ label, value, placeholder = 'geen', onChange }: FieldProps) {
   const onInput = useCallback(
     (event: InputEvent) => onChange(event.detail.value),
     [onChange],
@@ -45,14 +55,14 @@ function Field({ label, value, onChange }: FieldProps) {
         className="ThresholdField-input"
         default-value={value}
         type="digit"
-        placeholder="geen"
+        placeholder={placeholder}
         bindinput={onInput}
       />
     </view>
   );
 }
 
-export function ThresholdEditor({ threshold }: ThresholdEditorProps) {
+export function ThresholdEditor({ threshold, onSaved }: ThresholdEditorProps) {
   const [saved, setSaved] = useState(threshold);
   const [input, setInput] = useState<ThresholdInput>(() =>
     toThresholdInput(threshold),
@@ -84,35 +94,59 @@ export function ThresholdEditor({ threshold }: ThresholdEditorProps) {
       .then((updated) => {
         if (updated) {
           setSaved(updated);
+          onSaved(updated);
           setInput(toThresholdInput(updated));
         }
         setMessage('Opgeslagen');
       })
       .catch((reason: unknown) => setError(errorMessage(reason)))
       .finally(() => setIsSaving(false));
-  }, [input, isSaving, saved]);
+  }, [input, isSaving, onSaved, saved]);
 
   const unit = UNITS[threshold.metric];
+  const defaultHint = DEFAULT_HINTS[threshold.metric];
+  // Alleen licht heeft actieve uren (de nachtrust); de andere regels gelden altijd.
+  const hasNightRest = threshold.metric === Metric.LIGHT;
 
   return (
     <view className="Card">
-      <text className="ThresholdEditor-title">
-        {metricLabel(threshold.metric)}
-        {unit ? ` (${unit})` : ''}
+      <text className="ThresholdEditor-hint">
+        {[unit, defaultHint].filter(Boolean).join(' · ')}
       </text>
       <view className="ThresholdEditor-fields">
-        <Field label="Minimum" value={input.min} onChange={setField('min')} />
-        <Field label="Maximum" value={input.max} onChange={setField('max')} />
+        <Field label="Min" value={input.min} onChange={setField('min')} />
+        <Field label="Max" value={input.max} onChange={setField('max')} />
         <Field
-          label="Duur (s)"
+          label="Alarm na (s)"
           value={input.durationSec}
+          placeholder="meteen"
           onChange={setField('durationSec')}
         />
       </view>
-      <text className="InfoText">
-        Leeg = geen grens. Duur: hoe lang de waarde buiten de grens mag blijven
-        voor er een alarm komt.
-      </text>
+
+      {hasNightRest && (
+        <view className="ThresholdEditor-night">
+          <text className="ThresholdEditor-subtitle">Nachtrust</text>
+          <view className="ThresholdEditor-fields">
+            <Field
+              label="Van (uur)"
+              value={input.fromHour}
+              placeholder="–"
+              onChange={setField('fromHour')}
+            />
+            <Field
+              label="Tot (uur)"
+              value={input.toHour}
+              placeholder="–"
+              onChange={setField('toHour')}
+            />
+          </view>
+          <text className="ThresholdEditor-hint">
+            Alleen dan geeft licht een alarm.
+          </text>
+        </view>
+      )}
+
       <view className="Button ThresholdEditor-save" bindtap={onSave}>
         <text className="Button-text">{isSaving ? 'Bezig…' : 'Opslaan'}</text>
       </view>

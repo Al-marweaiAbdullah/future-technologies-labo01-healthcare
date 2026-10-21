@@ -69,3 +69,15 @@ export function fractionInside(
   ).length;
   return insideCount / values.length;
 }
+
+function formatHour(hour: number): string {
+  return `${String(hour).padStart(2, '0')}:00`;
+}
+
+/** Bv. `alleen 22:00–07:00`; leeg als de regel altijd geldt. */
+export function formatActiveHours(threshold?: Threshold): string | undefined {
+  const from = threshold?.activeFromHour;
+  const to = threshold?.activeToHour;
+  if (from === undefined || to === undefined) return undefined;
+  return `alleen ${formatHour(from)}–${formatHour(to)}`;
+}
