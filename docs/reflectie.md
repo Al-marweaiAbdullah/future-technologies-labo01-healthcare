@@ -8,7 +8,7 @@
 
 **Troubleshooting-checklist.** De LED werkt omgekeerd (brandt als de pin laag is), het OLED-scherm stond gespiegeld en op zijn kop (nu in software omgedraaid) en de DHT22 lezen we niet sneller uit dan om de 2 s. Daarnaast overschreven GrovePi-commando's elkaar als ze te snel na elkaar kwamen.
 
-**Volgende stap.** Meerdere kamers samen testen, een nachtvenster voor het lichtalarm, en beveiliging (TLS, aanmelden) voor RestWell buiten een prototype gebruikt wordt.
+**Volgende stap.** Meerdere kamers samen testen, het lichtalarm testen met echte nachtlichtwaarden in plaats van de demowaarde van 60 s, en beveiliging (TLS, aanmelden) voor RestWell buiten een prototype gebruikt wordt.
 
 ## AI-verantwoording
 
