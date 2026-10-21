@@ -91,14 +91,19 @@ export function toThreshold(row: ThresholdRow): Threshold {
     minValue: optional(row.min_value),
     maxValue: optional(row.max_value),
     maxDurationSec: optional(row.max_duration_sec),
+    activeFromHour: optional(row.active_from_hour),
+    activeToHour: optional(row.active_to_hour),
   });
 }
 
 // Een leeg veld in het contract wordt NULL in de database: geen grens aan die kant.
+// Lege uren blijven undefined: db/ laat de actieve uren dan ongewijzigd.
 export function toThresholdValues(threshold: Threshold): ThresholdValues {
   return {
     min_value: threshold.minValue ?? null,
     max_value: threshold.maxValue ?? null,
     max_duration_sec: threshold.maxDurationSec ?? null,
+    active_from_hour: threshold.activeFromHour,
+    active_to_hour: threshold.activeToHour,
   };
 }
