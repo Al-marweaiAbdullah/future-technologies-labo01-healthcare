@@ -20,6 +20,9 @@ export type EvaluationInput = {
   openAlarms: AlarmRow[];
   exceededSince: ExceededSince;
   nowMs: number;
+  // Lokaal uur (0-23) voor regels met actieve uren, bv. licht alleen 's nachts.
+  // Zonder uur gelden alle regels altijd.
+  localHour?: number;
 };
 
 export type Evaluation = {

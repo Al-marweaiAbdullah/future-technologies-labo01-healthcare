@@ -14,7 +14,7 @@ test("openDatabase voert de migraties uit", () => {
     .all();
 
   assert.deepEqual([...tables].sort(), ["alarms", "measurements", "rooms", "thresholds"]);
-  assert.equal(db.pragma("user_version", { simple: true }), 2);
+  assert.equal(db.pragma("user_version", { simple: true }), 3);
 });
 
 test("openDatabase zet foreign keys aan", () => {
@@ -25,7 +25,7 @@ test("openDatabase zet foreign keys aan", () => {
 test("migraties opnieuw uitvoeren doet niets", () => {
   const db = openDatabase(IN_MEMORY);
   assert.doesNotThrow(() => runMigrations(db));
-  assert.equal(db.pragma("user_version", { simple: true }), 2);
+  assert.equal(db.pragma("user_version", { simple: true }), 3);
 });
 
 test("migratie 002 haalt geluid weg en houdt de rest", () => {
@@ -53,6 +53,33 @@ test("migratie 002 haalt geluid weg en houdt de rest", () => {
   assert.deepEqual(db.prepare("SELECT sensor FROM alarms").pluck().all(), ["light"]);
   assert.throws(
     () => db.prepare("INSERT INTO thresholds (room_id, sensor) VALUES ('room1', 'sound')").run(),
+    /CHECK constraint failed/,
+  );
+});
+
+test("migratie 003 geeft licht in een bestaande database het nachtvenster 22 tot 7", () => {
+  // Een database zoals ze was na 002, met verzonnen drempels erin.
+  const db = new Database(IN_MEMORY);
+  for (const file of ["001_init.sql", "002_remove_sound.sql"]) {
+    db.exec(readFileSync(join(import.meta.dirname, "migrations", file), "utf8"));
+  }
+  db.pragma("user_version = 2");
+  db.exec(`
+    INSERT INTO rooms (id, name) VALUES ('room1', 'Kamer 1');
+    INSERT INTO thresholds (room_id, sensor, max_value) VALUES ('room1', 'light', 900), ('room1', 'temperature', 24);
+  `);
+
+  runMigrations(db);
+
+  const hours = db
+    .prepare("SELECT sensor, active_from_hour, active_to_hour FROM thresholds ORDER BY sensor")
+    .all();
+  assert.deepEqual(hours, [
+    { sensor: "light", active_from_hour: 22, active_to_hour: 7 },
+    { sensor: "temperature", active_from_hour: null, active_to_hour: null },
+  ]);
+  assert.throws(
+    () => db.prepare("UPDATE thresholds SET active_from_hour = 24 WHERE sensor = 'light'").run(),
     /CHECK constraint failed/,
   );
 });

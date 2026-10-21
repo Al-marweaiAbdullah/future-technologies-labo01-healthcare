@@ -12,12 +12,12 @@ Warmte, droge lucht en licht 's nachts beïnvloeden het comfort, de slaap en het
 
 ### Wat RestWell meet
 
-| Meting               | Sensor                | Alarm als                               |
-| -------------------- | --------------------- | --------------------------------------- |
-| Temperatuur (°C)     | DHT22                 | onder 18 °C of boven 24 °C              |
-| Luchtvochtigheid (%) | DHT22 (zelfde sensor) | onder 30 % of boven 60 %                |
-| Licht (ruwe waarde)  | lichtsensor (LDR)     | boven 900, langer dan 60 s (demowaarde) |
-| Beweging (ja/nee)    | PIR-bewegingssensor   | nooit: wordt alleen gelogd, als context |
+| Meting               | Sensor                | Alarm als                                                       |
+| -------------------- | --------------------- | --------------------------------------------------------------- |
+| Temperatuur (°C)     | DHT22                 | onder 18 °C of boven 24 °C                                      |
+| Luchtvochtigheid (%) | DHT22 (zelfde sensor) | onder 30 % of boven 60 %                                        |
+| Licht (ruwe waarde)  | lichtsensor (LDR)     | 's nachts (22:00–07:00) boven 900, langer dan 60 s (demowaarde) |
+| Beweging (ja/nee)    | PIR-bewegingssensor   | nooit: wordt alleen gelogd, als context                         |
 
 Lawaai meten we bewust niet: er is geen geluidssensor, en een microfoon in een patiëntenkamer willen we vermijden (zie [privacy](docs/privacy.md)).
 
@@ -45,11 +45,11 @@ De poorten, I²C-adressen en de voorbereiding van de Pi staan in [`pi/src/hardwa
 
 ## Drempels en bronnen
 
-| Meting           | Drempel                       | Bron                                                                                             |
-| ---------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
-| Temperatuur      | 18–24 °C                      | WHO Housing and health guidelines (2018)                                                         |
-| Luchtvochtigheid | 30–60 %                       | EPA: binnen onder 60 %, ideaal 30–50 %                                                           |
-| Licht            | boven 900 (ruw), langer dan X | ICU-studies over licht 's nachts en slaap, plus onze eigen meting (gewoon kamerlicht geeft ±765) |
+| Meting           | Drempel                                 | Bron                                                                                             |
+| ---------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Temperatuur      | 18–24 °C                                | WHO Housing and health guidelines (2018)                                                         |
+| Luchtvochtigheid | 30–60 %                                 | EPA: binnen onder 60 %, ideaal 30–50 %                                                           |
+| Licht            | 's nachts boven 900 (ruw), langer dan X | ICU-studies over licht 's nachts en slaap, plus onze eigen meting (gewoon kamerlicht geeft ±765) |
 
 De volledige motivatie met links staat in [`pi/src/db/README.md`](pi/src/db/README.md#drempels-en-bronnen). De drempels zijn **aanpasbaar**: ze staan in de database en je wijzigt ze in de app op het drempelscherm. Een wijziging werkt meteen, zonder herstart.
 

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { evaluateMeasurement } from "./evaluate.ts";
-import { alarm, normalMeasurement, ROOM_ID, THRESHOLDS } from "./test-data.ts";
+import { alarm, NIGHT_LIGHT, normalMeasurement, ROOM_ID, THRESHOLDS } from "./test-data.ts";
 
 const NOW_MS = 100_000;
 const SEC = 1000;
@@ -141,7 +141,15 @@ test("beweging geeft nooit een alarm, ook niet met een drempel", () => {
   const result = evaluateMeasurement({
     measurement: normalMeasurement({ motion: 1 }),
     thresholds: [
-      { room_id: ROOM_ID, sensor: "motion", min_value: null, max_value: 0, max_duration_sec: null },
+      {
+        room_id: ROOM_ID,
+        sensor: "motion",
+        min_value: null,
+        max_value: 0,
+        max_duration_sec: null,
+        active_from_hour: null,
+        active_to_hour: null,
+      },
     ],
     openAlarms: [],
     exceededSince: new Map(),
@@ -162,4 +170,76 @@ test("de doorgegeven exceededSince wordt niet aangepast", () => {
   });
 
   assert.deepEqual(exceededSince, new Map([["light", NOW_MS - 10 * SEC]]));
+});
+
+const NIGHT_HOUR = 23;
+const DAY_HOUR = 14;
+
+test("licht 's nachts langer dan de duur boven de drempel: alarm", () => {
+  const result = evaluateMeasurement({
+    measurement: normalMeasurement({ light_raw: 800 }),
+    thresholds: [NIGHT_LIGHT],
+    openAlarms: [],
+    exceededSince: new Map([["light", NOW_MS - 61 * SEC]]),
+    nowMs: NOW_MS,
+    localHour: NIGHT_HOUR,
+  });
+
+  assert.equal(result.alarmsToCreate.length, 1);
+  assert.equal(result.alarmsToCreate[0]?.sensor, "light");
+});
+
+test("licht overdag: geen alarm en geen teller, ook als het lang fel is", () => {
+  const result = evaluateMeasurement({
+    measurement: normalMeasurement({ light_raw: 1000 }),
+    thresholds: [NIGHT_LIGHT],
+    openAlarms: [],
+    exceededSince: new Map([["light", NOW_MS - 600 * SEC]]),
+    nowMs: NOW_MS,
+    localHour: DAY_HOUR,
+  });
+
+  assert.deepEqual(result.alarmsToCreate, []);
+  assert.deepEqual(result.exceededSince, new Map());
+});
+
+test("een open lichtalarm sluit zodra de dag begint", () => {
+  const result = evaluateMeasurement({
+    measurement: normalMeasurement({ light_raw: 1000 }),
+    thresholds: [NIGHT_LIGHT],
+    openAlarms: [alarm({ id: 9, sensor: "light", status: "acknowledged" })],
+    exceededSince: new Map([["light", NOW_MS - 600 * SEC]]),
+    nowMs: NOW_MS,
+    localHour: 7,
+  });
+
+  assert.deepEqual(result.alarmIdsToResolve, [9]);
+});
+
+test("overdag blijven temperatuur en vochtigheid gewoon gelden", () => {
+  const result = evaluateMeasurement({
+    measurement: normalMeasurement({ temperature_c: 27.4, light_raw: 1000 }),
+    thresholds: [...THRESHOLDS.filter((t) => t.sensor !== "light"), NIGHT_LIGHT],
+    openAlarms: [],
+    exceededSince: new Map(),
+    nowMs: NOW_MS,
+    localHour: DAY_HOUR,
+  });
+
+  assert.deepEqual(
+    result.alarmsToCreate.map((created) => created.sensor),
+    ["temperature"],
+  );
+});
+
+test("zonder localHour gelden alle regels altijd, ook de nachtregel", () => {
+  const result = evaluateMeasurement({
+    measurement: normalMeasurement({ light_raw: 800 }),
+    thresholds: [NIGHT_LIGHT],
+    openAlarms: [],
+    exceededSince: new Map([["light", NOW_MS - 61 * SEC]]),
+    nowMs: NOW_MS,
+  });
+
+  assert.equal(result.alarmsToCreate.length, 1);
 });
