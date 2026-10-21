@@ -3,11 +3,46 @@ import type { AlarmRow, NewMeasurement, ThresholdRow } from "../db/index.ts";
 
 export const ROOM_ID = "room1";
 
+const ALWAYS_ACTIVE = { active_from_hour: null, active_to_hour: null };
+
+// Alle regels gelden altijd, zodat de bestaande tests niet van het uur afhangen.
 export const THRESHOLDS: ThresholdRow[] = [
-  { room_id: ROOM_ID, sensor: "temperature", min_value: 18, max_value: 24, max_duration_sec: null },
-  { room_id: ROOM_ID, sensor: "humidity", min_value: 30, max_value: 60, max_duration_sec: null },
-  { room_id: ROOM_ID, sensor: "light", min_value: null, max_value: 700, max_duration_sec: 60 },
+  {
+    room_id: ROOM_ID,
+    sensor: "temperature",
+    min_value: 18,
+    max_value: 24,
+    max_duration_sec: null,
+    ...ALWAYS_ACTIVE,
+  },
+  {
+    room_id: ROOM_ID,
+    sensor: "humidity",
+    min_value: 30,
+    max_value: 60,
+    max_duration_sec: null,
+    ...ALWAYS_ACTIVE,
+  },
+  {
+    room_id: ROOM_ID,
+    sensor: "light",
+    min_value: null,
+    max_value: 700,
+    max_duration_sec: 60,
+    ...ALWAYS_ACTIVE,
+  },
 ];
+
+// Licht alleen 's nachts, van 22 tot 7, zoals in seed.ts.
+export const NIGHT_LIGHT: ThresholdRow = {
+  room_id: ROOM_ID,
+  sensor: "light",
+  min_value: null,
+  max_value: 700,
+  max_duration_sec: 60,
+  active_from_hour: 22,
+  active_to_hour: 7,
+};
 
 // Een meting waarbij alles binnen de drempels valt.
 export function normalMeasurement(overrides: Partial<NewMeasurement> = {}): NewMeasurement {

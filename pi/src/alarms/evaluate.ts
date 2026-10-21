@@ -1,6 +1,6 @@
 import type { NewAlarm, NewMeasurement, SensorName, ThresholdRow } from "../db/index.ts";
 import { formatReason } from "./reason.ts";
-import { checkThreshold } from "./thresholds.ts";
+import { checkThreshold, isActiveAtHour } from "./thresholds.ts";
 import type { Evaluation, EvaluationInput } from "./types.ts";
 
 const MS_PER_SEC = 1000;
@@ -28,7 +28,7 @@ function exceededLongEnough(threshold: ThresholdRow, sinceMs: number, nowMs: num
 // Beslist welke alarmen starten en welke opgelost zijn. Schrijft zelf niets weg:
 // de aanroeper slaat alarmsToCreate op en lost alarmIdsToResolve op via db/.
 export function evaluateMeasurement(input: EvaluationInput): Evaluation {
-  const { measurement, thresholds, openAlarms, nowMs } = input;
+  const { measurement, thresholds, openAlarms, nowMs, localHour } = input;
   const exceededSince = new Map(input.exceededSince);
   const alarmsToCreate: NewAlarm[] = [];
   const alarmIdsToResolve: number[] = [];
@@ -37,10 +37,19 @@ export function evaluateMeasurement(input: EvaluationInput): Evaluation {
     const { sensor } = threshold;
     if (sensor === "motion") continue; // beweging wordt enkel gelogd
 
+    const openAlarm = openAlarms.find((alarm) => alarm.sensor === sensor);
+
+    // Buiten de actieve uren telt de regel niet: geen nieuw alarm, en een open alarm
+    // (bv. licht dat 's nachts te lang aan was) sluit zodra de dag begint.
+    if (localHour !== undefined && !isActiveAtHour(threshold, localHour)) {
+      exceededSince.delete(sensor);
+      if (openAlarm) alarmIdsToResolve.push(openAlarm.id);
+      continue;
+    }
+
     const value = sensorValue(measurement, sensor);
     if (value === null) continue; // geen waarde: niets veranderen
 
-    const openAlarm = openAlarms.find((alarm) => alarm.sensor === sensor);
     const check = checkThreshold(value, threshold);
 
     if (check === "ok") {

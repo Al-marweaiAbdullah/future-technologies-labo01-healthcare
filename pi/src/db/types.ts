@@ -26,6 +26,9 @@ export type ThresholdRow = {
   min_value: number | null;
   max_value: number | null;
   max_duration_sec: number | null;
+  // Uren (0-23, lokale tijd) waarin de regel geldt, eind-uur niet inbegrepen. Beide null = altijd.
+  active_from_hour: number | null;
+  active_to_hour: number | null;
 };
 
 export type AlarmRow = {
