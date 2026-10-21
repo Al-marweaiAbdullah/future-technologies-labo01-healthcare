@@ -79,12 +79,15 @@ export function summarize(readings: Reading[], metric: ChartMetric): Summary {
     .map((reading) => readingValue(reading, metric))
     .filter((value): value is number => value !== undefined);
   if (values.length === 0) return { count: 0 };
-  return {
-    count: values.length,
-    min: Math.min(...values),
-    max: Math.max(...values),
-    average: average(values),
-  };
+  // Geen Math.min(...values): bij 24 uur zijn dat tienduizenden argumenten, en dat kan de
+  // JavaScript-engine van Lynx niet aan.
+  let min = Infinity;
+  let max = -Infinity;
+  for (const value of values) {
+    if (value < min) min = value;
+    if (value > max) max = value;
+  }
+  return { count: values.length, min, max, average: average(values) };
 }
 
 /**
