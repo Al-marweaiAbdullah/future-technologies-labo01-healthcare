@@ -160,6 +160,12 @@
   border-left: 4px solid var(--color-alarm);
 }
 
+/* Sensor valt uit: geen te hoge of te lage waarde, dus een andere kleur dan een drempelalarm */
+.AlarmCard--offline {
+  background-color: var(--color-banner);
+  border-left: 4px solid var(--color-banner-text);
+}
+
 .AlarmCard-header {
   display: flex;
   flex-direction: row;
@@ -470,6 +476,10 @@
   padding: 14px 16px;
   border-radius: 12px;
   background-color: var(--color-alarm);
+}
+
+.AlarmPopup--offline {
+  background-color: var(--color-banner-text);
 }
 
 .AlarmPopup-title {
