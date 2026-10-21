@@ -43,8 +43,9 @@ The terminal will display a QR code and a bundle URL.
 | --- | --- |
 | `src/App.tsx` | Switches between the screens; shows the prototype banner on every screen |
 | `src/screens/` | `RoomListScreen` (all rooms), `RoomDetailScreen` (readings, chart and alarms of one room) and `ThresholdScreen` (adjust the thresholds via `UpdateThreshold`) |
-| `src/components/` | Small building blocks: `RoomRow`, `MeasurementRow`, `AlarmCard`, `PrototypeBanner`, `ThresholdEditor`, `HistorySection`, `HistoryChart` (bar chart built from views: Lynx has no chart library) and `AlarmHistorySection` ("Recente alarmen": every alarm of the last 24 hours, also resolved and seen ones) |
-| `src/format/` | Turns values from the contract into text (`21,5 °C`, `1 alarm`, ...) readings into chart buckets and min/avg/max (`history.ts`), compares values with the comfort zone (`thresholds.ts`), marks alarm moments in the chart and writes the insight sentence ("Last hour 12 min too warm", `insights.ts`), groups alarms per sensor (`alarmGroups.ts`: the Pi creates a new alarm each time a value crosses a limit again, the app shows one card per sensor), validates threshold input (`thresholdInput.ts`) and formats the alarm history (`alarmHistory.ts`), with tests |
+| `src/components/` | Small building blocks: `RoomRow`, `MeasurementRow`, `AlarmCard` (also counts down to the buzzer in the room), `AlarmPopup` (red notice on the room screen when an alarm goes off while it is open, with the buzzer countdown; disappears after 10 s or on tap, the alarm stays under Alarmen), `PrototypeBanner`, `ThresholdEditor`, `HistorySection`, `HistoryChart` (bar chart built from views: Lynx has no chart library) and `AlarmHistorySection` ("Recente alarmen": every alarm of the last 24 hours, also resolved and seen ones) |
+| `src/hooks/` | `useNow()`: the current time, updated every second, for the buzzer countdown |
+| `src/format/` | Turns values from the contract into text (`21,5 °C`, `1 alarm`, ...) readings into chart buckets and min/avg/max (`history.ts`), compares values with the comfort zone (`thresholds.ts`), marks alarm moments in the chart and writes the insight sentence ("Last hour 12 min too warm", `insights.ts`), groups alarms per sensor (`alarmGroups.ts`: the Pi creates a new alarm each time a value crosses a limit again, the app shows one card per sensor), counts down to the buzzer (`buzzer.ts`, same rule as `pi/src/alarms/output.ts`), validates threshold input (`thresholdInput.ts`) and formats the alarm history (`alarmHistory.ts`), with tests |
 
 **Tap handlers that call the Pi must start with `'background only';`.** ReactLynx also runs component code on the main thread, where `fetch` does not exist; the directive removes the handler there. Network code in `useEffect` needs nothing: effects only run on the background thread.
 
@@ -63,7 +64,7 @@ The app talks to the gRPC server on the Pi with [Connect](https://connectrpc.com
 | `useReadingHistory.ts` | `useReadingHistory(roomId, windowMs, liveReading)`: readings of a period via `ListReadings`, then extended with live readings |
 | `useAlarmHistory.ts` | `useAlarmHistory(roomId, windowMs, refreshKey)`: alarm history via `ListAlarms`, fetched again only when a live alarm changes (no polling) |
 | `useRoomLive.ts` | `useRoomLive(roomId)`: live readings and open alarms of a room; reconnects after 3 s if the connection drops or stays silent for 10 s |
-| `roomState.ts` | How a message from the live stream updates what the app knows |
+| `roomState.ts` | How a message from the live stream updates what the app knows, including `newAlarm`: an active alarm the app did not know yet (for the popup) |
 | `config.ts` | The server address (`PUBLIC_PI_URL`) |
 | `useRooms.ts` | `useRooms()`: all rooms with their number of open alarms, fetched once |
 | `useLatestReading.ts` | `useLatestReading(roomId)`: the latest reading, fetched once when a screen opens (until the first live message arrives) |
