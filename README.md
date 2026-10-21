@@ -41,6 +41,10 @@ app/                ← de Lynx-app op de telefoon
 
 Hoe de onderdelen op de Pi samenwerken, staat in [`pi/README.md`](pi/README.md).
 
+## Privacy en ethiek
+
+Zie [`docs/privacy.md`](docs/privacy.md): welke data we verzamelen en waarom, waarom we een kamer-ID gebruiken in plaats van persoonsgegevens, wat we bewust niet meten (geen camera of microfoon) en hoe we het GDPR-bewust zouden aanpakken.
+
 ## Reflectie en AI-verantwoording
 
 Zie [`docs/reflectie.md`](docs/reflectie.md): wat werkte, wat niet, de volgende stap, en welke AI-tools we gebruikten en wat we zelf controleerden.
