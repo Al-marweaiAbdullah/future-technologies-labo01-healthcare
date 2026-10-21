@@ -8,13 +8,15 @@ import {
   type Threshold,
 } from '../generated/restwell/v1/restwell_pb.js';
 import { Chip } from '../components/Chip.js';
+import { RoomPicker } from '../components/RoomPicker.js';
 import { ThresholdEditor } from '../components/ThresholdEditor.js';
 import { metricLabel } from '../format/measurements.js';
 import { useThresholds } from '../grpc/useThresholds.js';
 
 type ThresholdScreenProps = {
+  rooms: Room[];
   room: Room;
-  onBack: () => void;
+  onSelectRoom: (room: Room) => void;
 };
 
 // Vaste volgorde van de tabs; de Pi stuurt de drempels alfabetisch.
@@ -25,7 +27,11 @@ function tabIndex(metric: Metric): number {
   return index === -1 ? TAB_ORDER.length : index;
 }
 
-export function ThresholdScreen({ room, onBack }: ThresholdScreenProps) {
+export function ThresholdScreen({
+  rooms,
+  room,
+  onSelectRoom,
+}: ThresholdScreenProps) {
   const thresholds = useThresholds(room.id);
   const [selected, setSelected] = useState<Metric>(Metric.TEMPERATURE);
   // Wat hier opgeslagen is, op sensor. useThresholds haalt de drempels maar één keer op,
@@ -44,10 +50,8 @@ export function ThresholdScreen({ room, onBack }: ThresholdScreenProps) {
 
   return (
     <scroll-view className="Screen" scroll-orientation="vertical">
-      <view className="BackButton" bindtap={onBack}>
-        <text className="BackButton-text">‹ {room.name}</text>
-      </view>
       <text className="Screen-title">Drempels</text>
+      <RoomPicker rooms={rooms} selectedId={room.id} onSelect={onSelectRoom} />
 
       {tabs.length === 0 && <text className="InfoText">Drempels laden…</text>}
       <view className="ChipRow">

@@ -1,14 +1,16 @@
 import type { Room } from '../generated/restwell/v1/restwell_pb.js';
 import { RoomRow } from '../components/RoomRow.js';
-import { useRooms } from '../grpc/useRooms.js';
+import type { Rooms } from '../grpc/useRooms.js';
 
 type RoomListScreenProps = {
+  rooms: Rooms;
   onSelectRoom: (room: Room) => void;
 };
 
-export function RoomListScreen({ onSelectRoom }: RoomListScreenProps) {
-  const { rooms, status, error, reload } = useRooms();
-
+export function RoomListScreen({
+  rooms: { rooms, status, error, reload },
+  onSelectRoom,
+}: RoomListScreenProps) {
   return (
     <scroll-view className="Screen" scroll-orientation="vertical">
       <text className="Screen-title">Kamers</text>
