@@ -71,6 +71,8 @@ function processMeasurement(measurement: NewMeasurement, nowMs: number): void {
     openAlarms,
     exceededSince,
     nowMs,
+    // Lokale tijd van de Pi: zet die op Belgische tijd, anders verschuift het nachtvenster.
+    localHour: new Date(nowMs).getHours(),
   });
   exceededSince = result.exceededSince;
 
