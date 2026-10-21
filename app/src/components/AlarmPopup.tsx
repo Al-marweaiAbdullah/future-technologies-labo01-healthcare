@@ -3,12 +3,9 @@
 import { useEffect } from '@lynx-js/react';
 
 import type { Alarm } from '../generated/restwell/v1/restwell_pb.js';
+import { alarmDetail, isSensorOffline } from '../format/alarmDetail.js';
 import { formatBuzzerCountdown } from '../format/buzzer.js';
-import {
-  formatMetricValue,
-  formatTime,
-  metricLabel,
-} from '../format/measurements.js';
+import { formatTime } from '../format/measurements.js';
 import { useNow } from '../hooks/useNow.js';
 
 const ALARM_POPUP_DURATION_MS = 10_000;
@@ -27,11 +24,15 @@ export function AlarmPopup({ alarm, onClose }: AlarmPopupProps) {
   }, [onClose]);
 
   return (
-    <view className="AlarmPopup" bindtap={onClose}>
+    <view
+      className={
+        isSensorOffline(alarm) ? 'AlarmPopup AlarmPopup--offline' : 'AlarmPopup'
+      }
+      bindtap={onClose}
+    >
       <text className="AlarmPopup-title">Alarm: {alarm.reason}</text>
       <text className="AlarmPopup-detail">
-        {metricLabel(alarm.metric)}:{' '}
-        {formatMetricValue(alarm.metric, alarm.value)}
+        {alarmDetail(alarm)}
         {' · '}
         {formatTime(alarm.startedAtMs)}
       </text>

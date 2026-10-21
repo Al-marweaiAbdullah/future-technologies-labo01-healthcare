@@ -7,13 +7,9 @@ import {
   type Alarm,
 } from '../generated/restwell/v1/restwell_pb.js';
 import type { AlarmGroup } from '../format/alarmGroups.js';
+import { alarmDetail, isSensorOffline } from '../format/alarmDetail.js';
 import { formatBuzzerCountdown } from '../format/buzzer.js';
-import {
-  alarmLabel,
-  formatMetricValue,
-  formatTime,
-  metricLabel,
-} from '../format/measurements.js';
+import { alarmLabel, formatTime } from '../format/measurements.js';
 import { acknowledgeAlarm } from '../grpc/acknowledgeAlarm.js';
 import { errorMessage } from '../grpc/errors.js';
 import { useNow } from '../hooks/useNow.js';
@@ -73,17 +69,14 @@ export function AlarmCard({ group, onAcknowledged }: AlarmCardProps) {
 
   return (
     <view
-      className={
-        isActive ? 'Card AlarmCard AlarmCard--active' : 'Card AlarmCard'
-      }
+      className={`Card AlarmCard${isActive ? (isSensorOffline(latest) ? ' AlarmCard--offline' : ' AlarmCard--active') : ''}`}
     >
       <view className="AlarmCard-header">
         <text className="AlarmCard-title">{latest.reason}</text>
         <text className="AlarmCard-status">{alarmLabel(latest)}</text>
       </view>
       <text className="AlarmCard-detail">
-        {metricLabel(latest.metric)}:{' '}
-        {formatMetricValue(latest.metric, latest.value)}
+        {alarmDetail(latest)}
         {' · '}
         {occurrences}
       </text>
