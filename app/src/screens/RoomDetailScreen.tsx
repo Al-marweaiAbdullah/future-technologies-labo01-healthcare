@@ -15,7 +15,12 @@ import {
   formatTemperature,
   formatTime,
 } from '../format/measurements.js';
-import { formatRange, isOutside, thresholdFor } from '../format/thresholds.js';
+import {
+  formatActiveHours,
+  formatRange,
+  isOutside,
+  thresholdFor,
+} from '../format/thresholds.js';
 import { useLatestReading } from '../grpc/useLatestReading.js';
 import { needsAttention } from '../grpc/roomState.js';
 import { useRoomLive, type RoomLiveStatus } from '../grpc/useRoomLive.js';
@@ -33,6 +38,12 @@ const LIVE_STATUS_LABELS: Record<RoomLiveStatus, string> = {
   closed: 'Verbinding gesloten',
   error: 'Geen live-verbinding',
 };
+
+// Bv. `max 900 (alleen 22:00–07:00)`: licht geldt alleen 's nachts.
+function withActiveHours(range?: string, activeHours?: string) {
+  if (range === undefined || activeHours === undefined) return range;
+  return `${range} (${activeHours})`;
+}
 
 export function RoomDetailScreen({
   room,
@@ -111,7 +122,10 @@ export function RoomDetailScreen({
           <MeasurementRow
             label="Licht"
             value={formatLight(reading?.lightRaw)}
-            range={formatRange(lightThreshold, formatLight)}
+            range={withActiveHours(
+              formatRange(lightThreshold, formatLight),
+              formatActiveHours(lightThreshold),
+            )}
             isOutside={isOutside(reading?.lightRaw, lightThreshold)}
           />
           <MeasurementRow

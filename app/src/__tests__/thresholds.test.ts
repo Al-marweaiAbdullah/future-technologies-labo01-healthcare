@@ -8,6 +8,7 @@ import {
   type Reading,
 } from '../generated/restwell/v1/restwell_pb.js';
 import {
+  formatActiveHours,
   formatRange,
   fractionInside,
   isOutside,
@@ -93,5 +94,21 @@ describe('fractionInside', () => {
       fractionInside([reading(20)], 'temperature', undefined),
     ).toBeUndefined();
     expect(fractionInside([], 'temperature', TEMPERATURE)).toBeUndefined();
+  });
+});
+
+describe('formatActiveHours', () => {
+  test('toont de uren waarin de regel geldt', () => {
+    const night = create(ThresholdSchema, {
+      ...LIGHT,
+      activeFromHour: 22,
+      activeToHour: 7,
+    });
+    expect(formatActiveHours(night)).toBe('alleen 22:00–07:00');
+  });
+
+  test('leeg als de regel altijd geldt', () => {
+    expect(formatActiveHours(TEMPERATURE)).toBeUndefined();
+    expect(formatActiveHours(undefined)).toBeUndefined();
   });
 });
