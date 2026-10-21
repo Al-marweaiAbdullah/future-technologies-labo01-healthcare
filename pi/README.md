@@ -60,6 +60,8 @@ Het script vult het pad van de repo, de gebruiker en nvm in `deploy/restwell.ser
 | Tijdelijk stoppen                  | `sudo systemctl stop restwell`          |
 | Niet meer automatisch starten      | `sudo systemctl disable --now restwell` |
 
+**Zet de Pi op Belgische tijd.** Het lichtalarm geldt alleen 's nachts (22 tot 7), volgens de klok van de Pi. Controleer met `timedatectl` dat de tijdzone `Europe/Brussels` is, en zet ze anders met `sudo timedatectl set-timezone Europe/Brussels`. Herstart daarna de service.
+
 **Stop de service voor je `npm run dev` of `npm run hardware:check` start.** Anders gebruiken twee programma's tegelijk de sensoren en poort 8080.
 
 ## Hoe de onderdelen samenwerken

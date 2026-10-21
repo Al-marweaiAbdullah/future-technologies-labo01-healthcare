@@ -282,6 +282,62 @@ test("UpdateThreshold past een drempel aan; een leeg veld betekent geen grens", 
   assert.equal(temperature?.maxValue, 26);
 });
 
+test("ListThresholds geeft de actieve uren: licht 's nachts, temperatuur altijd", async () => {
+  const { thresholds } = await client.listThresholds({ roomId: DEFAULT_ROOM.id });
+
+  const light = thresholds.find((t) => t.metric === Metric.LIGHT);
+  assert.equal(light?.activeFromHour, 22);
+  assert.equal(light?.activeToHour, 7);
+  const temperature = thresholds.find((t) => t.metric === Metric.TEMPERATURE);
+  assert.equal(temperature?.activeFromHour, undefined);
+  assert.equal(temperature?.activeToHour, undefined);
+});
+
+test("UpdateThreshold past de actieve uren aan", async () => {
+  const { threshold } = await client.updateThreshold({
+    threshold: {
+      roomId: DEFAULT_ROOM.id,
+      metric: Metric.LIGHT,
+      maxValue: 500,
+      activeFromHour: 8,
+      activeToHour: 20,
+    },
+  });
+
+  assert.equal(threshold?.activeFromHour, 8);
+  assert.equal(threshold?.activeToHour, 20);
+  const { thresholds } = await client.listThresholds({ roomId: DEFAULT_ROOM.id });
+  const light = thresholds.find((t) => t.metric === Metric.LIGHT);
+  assert.equal(light?.activeFromHour, 8);
+  assert.equal(light?.activeToHour, 20);
+});
+
+test("UpdateThreshold zonder uren laat de actieve uren ongewijzigd", async () => {
+  const { threshold } = await client.updateThreshold({
+    threshold: { roomId: DEFAULT_ROOM.id, metric: Metric.LIGHT, maxValue: 500 },
+  });
+
+  assert.equal(threshold?.maxValue, 500);
+  assert.equal(threshold?.activeFromHour, 22);
+  assert.equal(threshold?.activeToHour, 7);
+});
+
+test("UpdateThreshold weigert ongeldige uren met INVALID_ARGUMENT", async () => {
+  const light = { roomId: DEFAULT_ROOM.id, metric: Metric.LIGHT, maxValue: 500 };
+  await assertConnectCode(
+    client.updateThreshold({ threshold: { ...light, activeFromHour: 22 } }),
+    Code.InvalidArgument,
+  );
+  await assertConnectCode(
+    client.updateThreshold({ threshold: { ...light, activeFromHour: 22, activeToHour: 24 } }),
+    Code.InvalidArgument,
+  );
+  await assertConnectCode(
+    client.updateThreshold({ threshold: { ...light, activeFromHour: 8, activeToHour: 8 } }),
+    Code.InvalidArgument,
+  );
+});
+
 test("UpdateThreshold weigert ongeldige waarden met INVALID_ARGUMENT", async () => {
   await assertConnectCode(
     client.updateThreshold({

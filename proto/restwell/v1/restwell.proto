@@ -90,6 +90,10 @@ message Threshold {
   optional double min_value = 3;        // in de eenheid van de sensor (zie Reading)
   optional double max_value = 4;
   optional int32 max_duration_sec = 5;  // pas alarm als de waarde zo lang buiten de grens blijft
+  // Uren (0-23, lokale tijd van de Pi) waarin de regel geldt; loopt over middernacht als
+  // from > to (licht: 22 tot 7). Beide leeg = altijd.
+  optional int32 active_from_hour = 6;  // vanaf dit uur
+  optional int32 active_to_hour = 7;    // tot dit uur, niet inbegrepen
 }
 
 // ---------- Requests en responses ----------
@@ -109,6 +113,8 @@ message ListThresholdsResponse {
 }
 
 // De volledige nieuwe drempel: een leeg veld betekent "geen grens", niet "ongewijzigd".
+// Uitzondering: laat je active_from_hour en active_to_hour allebei leeg, dan blijven de
+// actieve uren ongewijzigd. Geef ze samen op; terug naar "altijd" kan (nog) niet.
 message UpdateThresholdRequest {
   Threshold threshold = 1;
 }

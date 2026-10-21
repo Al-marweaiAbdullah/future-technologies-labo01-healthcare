@@ -19,7 +19,7 @@ De map volgt de package-naam (`restwell.v1`). Een brekende wijziging komt later 
 | --- | --- | --- |
 | `ListRooms` | gewoon | Alle kamers |
 | `ListThresholds` | gewoon | Drempels van een kamer, bv. voor de comfortzone in de app |
-| `UpdateThreshold` | gewoon | Eén drempel aanpassen. Geeft de volledige nieuwe drempel mee: een leeg veld is "geen grens" |
+| `UpdateThreshold` | gewoon | Eén drempel aanpassen. Geeft de volledige nieuwe drempel mee: een leeg veld is "geen grens". Lege actieve uren blijven ongewijzigd |
 | `WatchRoom` | **live** (server-streaming) | Elke nieuwe meting en elke alarmwijziging van een kamer |
 | `ListReadings` | gewoon | Metingen vanaf een tijdstip, voor grafieken |
 | `ListOpenAlarms` | gewoon | Alarmen die aandacht vragen: nog niet opgelost, of opgelost maar nog niet gezien |
